@@ -40,23 +40,41 @@ def insertGameList(gameInfo):
 		str(gameInfo['smallblind']),
 		str(gameInfo['timestamp']))
 
-def insertGameDetail(gameDetail, info_id, username, bonus, back):
+def insertGameDetail(gameDetail, infoId, username, bonus, back):
 	cursor = conn.cursor()
-	insert_sql = "INSERT INTO `onethink_historygamedetail`(`insuranceGetStacks`, `info_id`, `showId`, `clubId`, `bonus`, `strCover`, `strNick`, `strSmallCover`, `gameType`, `clubName`, `buyinStack`, `fantseynum`, `insuranceBuyStacks`, `remainStack`, `uuid`, `insurance`, `InsurancePremium`, `endTime`, `bz_username`, `afbonus`, `back`) "\
-	"VALUES ('"+ str(game_detail['insuranceGetStacks'])+"','"+ info_id +"','"+ game_detail['showId']+"','"+ str(game_detail['clubId'])+"','"+ str(game_detail['bonus'])+"','"+ game_detail['strCover']+"','"+ game_detail['strNick']+"','"+ game_detail['strSmallCover']+"','"+ game_detail['gameType']+"','"+ game_detail['clubName']+"','"+ str(game_detail['buyinStack'])+"','"+ str(game_detail['fantseynum'])+"','"+ str(game_detail['insuranceBuyStacks'])+"','"+ str(game_detail['remainStack'])+"','"+ str(game_detail['uuid'])+"','"+ str(game_detail['insurance'])+"','"+ str(game_detail['InsurancePremium'])+"','"+ str(time.mktime(datetime.datetime.strptime(game_detail['endTime'], "%Y-%m-%d %H:%M:%S").timetuple()))+"','"+ str(username)+"','"+ str(bonus)+"','"+ str(back)+"');"
+	sql = "INSERT INTO `onethink_historygamedetail`(`insuranceGetStacks`, `info_id`, `showId`, `clubId`, `bonus`, `strCover`, `strNick`, `strSmallCover`, `gameType`, `clubName`, `buyinStack`, `fantseynum`, `insuranceBuyStacks`, `remainStack`, `uuid`, `insurance`, `InsurancePremium`, `endTime`, `bz_username`, `afbonus`, `back`) "\
+	"VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 	cursor.execute(sql,
-		gameInfo['roomname'],
-		gameInfo['bigblind'],
-		gameInfo['createuser'],
-		str(gameInfo['gameroomtype']),
-		str(gameInfo['hands']),
-		str(gameInfo['iAnte']),
-		str(gameInfo['leagueid']),
-		str(gameInfo['maxplayer']),
-		str(gameInfo['players']),
-		str(gameInfo['roomid']),
-		str(gameInfo['smallblind']),
-		str(gameInfo['timestamp']))
+		gameDetail['insuranceGetStacks'],
+		infoId,
+		gameDetail['showId'],
+		str(gameDetail['clubId']),
+		str(gameDetail['bonus']),
+		str(gameDetail['strCover']),
+		str(gameDetail['gameType']),
+		str(gameDetail['clubName']),
+		str(gameDetail['buyinStack']),
+		str(gameDetail['remainStack']),
+		str(gameDetail['uuid']),
+		str(gameDetail['insurance']), 
+		str(gameDetail['InsurancePremium']),
+		str(time.mktime(datetime.datetime.strptime(game_detail['endTime'],"%Y-%m-%d %H:%M:%S").timetuple())),
+		username,
+		str(bonus),
+		str(back))
+
+def getGameList(createtime, roomid):
+	cursor = conn.cursor()
+	timestamp, ms = divmod(createtime, 1000)
+	sql = "SELECT * FROM `onethink_historygamelist` WHERE `roomid` = %s AND `createtime` = %s"
+	cursor.execute(sql, str(roomid), str(timestamp))
+	return cursor.fetchone()
+
+def check_game_detail(roomid, uid):
+	cursor = conn.cursor()
+	sql = "SELECT * FROM `onethink_historygamedetail` WHERE `showId` = %s AND `info_id` = %s"
+	cursor.execute(sql, str(uid), str(roomid))
+	return cursor.fetchone()
 
 def getSpecialBack(clubid):
 	cursor = conn.cursor()
