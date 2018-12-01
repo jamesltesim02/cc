@@ -3,6 +3,7 @@
 
 
 import time
+from cron.models import conn
 
 def addBuyinLog(purseInfo, buyin, action):
 	with conn.cursor() as cursor:

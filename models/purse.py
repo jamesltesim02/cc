@@ -5,15 +5,7 @@
 import pymysql
 import datetime
 import time
-
-
-conn = pymysql.connect(host='54.213.203.214',
-                       port=3306,
-                       user='test',
-                       password='10-9=1',
-                       db='holdem',
-                       charset='utf8',
-                       cursorclass=pymysql.cursors.DictCursor)
+from cron.models import conn
 
 def getBuyin(gameId, roomName):
 
@@ -25,7 +17,7 @@ def getBuyin(gameId, roomName):
     return cursor.fetchone(sql)
 
 
-def getUserInfoByGameId(gameId):
+def getPurseInfoByGameId(gameId):
   with conn.cursor() as cursor:
     sql = "select * from onethink_ucenter_vid_member as uv, onethink_player_purse as pp, onethink_ucenter_member as um where uv.game_vid=%s and uv.frontend_user_auth = pp.username and uv.frontend_user_auth = um.username"
     cursor.execute(sql, gameId)
@@ -66,8 +58,3 @@ def syncSettlement(gameId, roomName, delta):
 #同步买入信息
 def syncBuyin(gameId, buyin, action):
   info = getUserInfoByGameId(gameId)
-
-string = "ddd" \
-"ddd"
-print string
-
