@@ -22,7 +22,8 @@ class Daemon:
             if os.fork() > 0:
                 raise SystemExit(0)
         except OSError as e:
-            raise RuntimeError('fork #1 faild: {0} ({1})\n'.format(e.errno, e.strerror))
+            raise RuntimeError(
+                'fork #1 faild: {0} ({1})\n'.format(e.errno, e.strerror))
 
         os.chdir('/')
         os.setsid()
@@ -32,7 +33,8 @@ class Daemon:
             if os.fork() > 0:
                 raise SystemExit(0)
         except OSError as e:
-            raise RuntimeError('fork #2 faild: {0} ({1})\n'.format(e.errno, e.strerror))
+            raise RuntimeError(
+                'fork #2 faild: {0} ({1})\n'.format(e.errno, e.strerror))
 
         # Flush I/O buffers
         sys.stdout.flush()
@@ -64,7 +66,7 @@ class Daemon:
         try:
             self.daemonize()
         except RuntimeError as e:
-            print >> sys.stderr,e
+            print >> sys.stderr, e
             raise SystemExit(1)
 
         self.run()
@@ -78,7 +80,7 @@ class Daemon:
                 print >>sys.stderr, 'Not running.'
                 raise SystemExit(1)
         except OSError as e:
-            if 'No such process' in str(e) and os.path.exists(self.pidfile): 
+            if 'No such process' in str(e) and os.path.exists(self.pidfile):
                 os.remove(self.pidfile)
 
     def restart(self):
@@ -87,6 +89,7 @@ class Daemon:
 
     def run(self):
         print "hello world"
+
 
 if __name__ == '__main__':
     PIDFILE = '/var/tmp/holdem-cron.pid'
