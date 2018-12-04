@@ -3,17 +3,30 @@
 
 from providers import ProviderFactory
 
-cp = ProviderFactory.createProvider({
-    'name': 'common-provider',
-    'description': '通用提供商',
+bzlProvider = ProviderFactory.createProvider({
+    'name': 'bzl-provider',
+    'description': '宝芝林提供商(通用提供商)',
     'module': 'providers.implements.CommonProvider',
     'className': 'CommonProvider',
-    'username': 'boss',
-    'password': 'asdf',
-    'loginApi': 'https://vnt-ceo861.strong.zone/api/login_boss',
-    'buyinApi': 'https://vnt-ceo861.strong.zone/api/club_buyin',
-    'acceptApi': 'https://vnt-ceo861.strong.zone/api/control_cms/accept_buy',
-    'denyApi': 'https://vnt-ceo861.strong.zone/api/control_cms/deny_buy',
-    'gameDetailsApi': 'http://api.bzpk44.com/index.php?c=export'
+    'username': 'controller12',
+    'password': '5589',
+    'apiUrl': 'https://yqdp-manager689125.gakuen.fun/api/',
+
+    # 'loginApi': 'https://yqdp-manager689125.gakuen.fun/api/login_admin',
+    # 'buyinApi': 'https://yqdp-manager689125.gakuen.fun/api/club_buyin',
+    # 'acceptApi': 'https://yqdp-manager689125.gakuen.fun/api/control_cms/accept_buy',
+    # 'denyApi': 'https://yqdp-manager689125.gakuen.fun/api/control_cms/deny_buy',
+    # 'queryUserBoardApi': 'https://yqdp-manager689125.gakuen.fun/api/control_cms/query_user_board',
 })
-cp.getBuyin()
+bzlProvider.getBuyin()
+
+# cmsProvider =  ProviderFactory.createProvider({
+#     'name': 'cms-provider',
+#     'description': '自建CMS的提供商',
+#     'module': 'providers.implements.cmsprovider.CmsProvider',
+#     'className': 'CmsProvider',
+#     'username': '18206774149',
+#     'password': 'aa8888',
+#     ''
+# })
+# cmsProvider.getBuyin()
