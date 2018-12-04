@@ -1,6 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+
+import pymysql
+
 conn = pymysql.connect(host='54.213.203.214',
                        port=3306,
                        user='test',

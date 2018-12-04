@@ -2,7 +2,11 @@
 # -*- coding: UTF-8 -*-
 
 from providers import ProviderFactory
+from models import purse,conn
 
+print purse.getBuyin('11', '11')
+conn.close()
+exit(0)
 cp = ProviderFactory.createProvider({
     'name': 'common-provider',
     'description': '通用提供商',
