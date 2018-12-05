@@ -164,7 +164,6 @@ class CommonProvider(ProviderInterface):
                     end_time_end : "2018-05-06 08:00:23"   牌局結束時間 結束(string)
                     created_at_start : "2018-05-06 08:00:23" 牌局匯入時間 起始(string)
                     created_at_end : "2018-05-06 08:00:23"   牌局匯入時間 結束(string) 
-
                 }
 
         Returns:

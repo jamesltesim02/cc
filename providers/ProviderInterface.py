@@ -101,3 +101,10 @@ class ProviderInterface:
         """
 
         raise Exception('queryUserBoard必须在实现类中重写实现')
+
+    def queryCurrentGames(self):
+        """
+        查询当前战局
+        """
+
+        raise Exception('queryCurrentGames必须在实现类中重写实现')
