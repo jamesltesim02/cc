@@ -14,4 +14,4 @@ def createProvider(conf):
     if issubclass(providerType, ProviderInterface):
         return providerType(conf)
 
-    raise 'provider必须继承自ProviderInterface'
+    raise Exception('provider必须继承自ProviderInterface')

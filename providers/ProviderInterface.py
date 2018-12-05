@@ -9,7 +9,7 @@
 class ProviderInterface:
 
     def __init__(self):
-        raise '不允许直接对ProviderInterface创建对象,请使用具体提供商实现类'
+        raise Exception('不允许直接对ProviderInterface创建对象,请使用具体提供商实现类')
 
     def getBuyin(self):
         """
@@ -42,9 +42,9 @@ class ProviderInterface:
                 ]
         """
 
-        raise 'getBuyin必须在实现类中重写实现'
+        raise Exception('getBuyin必须在实现类中重写实现')
 
-    def acceptBuyin(self):
+    def acceptBuyin(self, params):
         """
         通过提案
 
@@ -59,9 +59,9 @@ class ProviderInterface:
                 }
         """
 
-        raise 'acceptBuyin必须在实现类中重写实现'
+        raise Exception('acceptBuyin必须在实现类中重写实现')
 
-    def denyBuyin(self):
+    def denyBuyin(self, params):
         """
         拒绝提案
 
@@ -76,18 +76,35 @@ class ProviderInterface:
                 }
         """
 
-        raise 'denyBuyin必须在实现类中重写实现'
+        raise Exception('denyBuyin必须在实现类中重写实现')
 
-    def getHistoryGameDetails(self):
+    def queryUserBoard(self, params):
         """
-        查询战绩
+        查询用户战绩
 
         Args:
-            params: 过滤时间条件
+            params: 查询条件
                 {
-                    startdate 开始时间
-                    enddate   结束时间
+                    pccname : "ABC" 德撲暱稱(string)
+                    query_index : 5  起始筆數(int)
+                    query_number : 30  回傳筆數(int) 最多30筆
+                    query_number : "AAA" 俱樂部名稱(string)
+                    end_time_start : "2018-05-06 08:00:23" 牌局結束時間 起始(string)
+                    end_time_end : "2018-05-06 08:00:23"   牌局結束時間 結束(string)
+                    created_at_start : "2018-05-06 08:00:23" 牌局匯入時間 起始(string)
+                    created_at_end : "2018-05-06 08:00:23"   牌局匯入時間 結束(string) 
+
                 }
+
+        Returns:
+            待定
         """
 
-        raise 'getHistoryGameDetails必须在实现类中重写实现'
+        raise Exception('queryUserBoard必须在实现类中重写实现')
+
+    def queryCurrentGames(self):
+        """
+        查询当前战局
+        """
+
+        raise Exception('queryCurrentGames必须在实现类中重写实现')

@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
+
 import os
 import json
 import requests
@@ -27,14 +28,23 @@ class CommonProvider(ProviderInterface):
         """
 
         loginAuth = base64.b64encode('%s:%s' % (self.conf['username'], self.conf['password']))
-        loginResult =  requests.post(
-            self.conf['loginApi'],
+
+        loginResponse =  requests.post(
+            '%s/login_admin' % self.conf['apiUrl'],
             data = { 'authorization': loginAuth }
         )
 
-        self.authCookie = loginResult.cookies.get_dict()
-        tempfile = open(self.tempFile, 'w+')
-        tempfile.write(json.dumps(self.authCookie))
+        loginResult = loginResponse.json()
+
+        if hasattr(loginResult, 'name') and loginResult['name'] == self.conf['username']:
+            self.authCookie = loginResult.cookies.get_dict()
+            tempfile = open(self.tempFile, 'w+')
+            tempfile.write(json.dumps(self.authCookie))
+        else:
+            if hasattr(loginResult, 'message'):
+                raise Exception(loginResult['message'])
+            else:
+                raise Exception('登录出错,请检查配置参数')
 
     def __invoke__(self, url, method = 'post', params = {}, needAuth = True):
         """
@@ -46,8 +56,11 @@ class CommonProvider(ProviderInterface):
                 if os.path.exists(self.tempFile) == False:
                     self.__login__()
                 else:
-                    tempfileReader = open(self.tempFile, 'r')
-                    self.authCookie = json.loads(tempfileReader.read())
+                    try:
+                        tempfileReader = open(self.tempFile, 'r')
+                        self.authCookie = json.loads(tempfileReader.read())
+                    except Exception as e:
+                        print(e)
                     if not self.authCookie:
                         self.__login__()
 
@@ -95,7 +108,7 @@ class CommonProvider(ProviderInterface):
         """
 
         return self.__invoke__(
-            self.conf['buyinApi'],
+            '%s/club_buyin' % self.conf['apiUrl'],
             method = 'get'
         )
 
@@ -115,7 +128,7 @@ class CommonProvider(ProviderInterface):
         """
 
         return self.__invoke__(
-            self.conf['acceptApi'],
+            '%s/accept_buy' % self.conf['apiUrl'],
             params
         )
 
@@ -135,23 +148,32 @@ class CommonProvider(ProviderInterface):
         """
 
         return self.__invoke__(
-            self.conf['denyApi'],
+            '%s/deny_buy' % self.conf['apiUrl'],
             params
         )
 
-    def getHistoryGameDetails(self, params):
+    def queryUserBoard(self, params):
         """
-        查询战绩
+        查询用户战绩
 
         Args:
-            params: 过滤时间条件
+            params: 查询条件
                 {
-                    startdate 开始时间
-                    enddate   结束时间
+                    pccname : "ABC" 德撲暱稱(string)
+                    query_index : 5  起始筆數(int)
+                    query_number : 30  回傳筆數(int) 最多30筆
+                    query_number : "AAA" 俱樂部名稱(string)
+                    end_time_start : "2018-05-06 08:00:23" 牌局結束時間 起始(string)
+                    end_time_end : "2018-05-06 08:00:23"   牌局結束時間 結束(string)
+                    created_at_start : "2018-05-06 08:00:23" 牌局匯入時間 起始(string)
+                    created_at_end : "2018-05-06 08:00:23"   牌局匯入時間 結束(string) 
                 }
+
+        Returns:
+            待定
         """
 
         return self.__invoke__(
-            self.conf['gameDetailsApi'],
+            '%s/query_user_board' % self.conf['apiUrl'],
             params
         )
