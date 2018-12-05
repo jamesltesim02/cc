@@ -23,6 +23,32 @@ def getPurseInfoByGameId(gameId):
     cursor.execute(sql, (gameId))
     return cursor.fetchone()
 
+def getTotoalBuyinAmount(pccid, beginTime, endTime, joinToken):
+  with conn.cursor() as cursor:
+    sql = """
+      select
+        sum(join_cash) as totalAmount
+      from
+        onethink_join_game_log
+      where
+        check_time between %d and %d
+        and
+        game_vid = %s
+        and
+        club_room_name = %s
+        and
+        check_status = 'accept'
+    """
+    cursor.execute(sql, (beginTime, endTime, pccid, joinToken))
+    return cursor.fetchone()
+  return
+
+def getSettleRecord(settleGameInfo):
+  with conn.cursor() as cursor:
+    sql = "select count(1) as settle_count from onethink_auto_api_cash_log where settle_game_info=%s"
+    cursor.execute(sql, (settleGameInfo))
+    return cursor.fetchone()
+
 def updatePurse(info, delta):
   cursor = conn.cursor()
   timestamp = str(time.time())

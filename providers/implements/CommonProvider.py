@@ -75,6 +75,8 @@ class CommonProvider(ProviderInterface):
             else:
                 self.__login__()
 
+        # print(result)
+
         return result['data']
 
     def getBuyin(self):
@@ -130,7 +132,7 @@ class CommonProvider(ProviderInterface):
 
         return self.__invoke__(
             '%s/accept_buy' % self.conf['apiUrl'],
-            params
+            params = params
         )
 
     def denyBuyin(self, params):
@@ -150,7 +152,7 @@ class CommonProvider(ProviderInterface):
 
         return self.__invoke__(
             '%s/deny_buy' % self.conf['apiUrl'],
-            params
+            params = params
         )
 
     def queryUserBoard(self, params):
@@ -176,5 +178,5 @@ class CommonProvider(ProviderInterface):
 
         return self.__invoke__(
             '%s/query_user_board' % self.conf['apiUrl'],
-            params
+            params = params
         )
