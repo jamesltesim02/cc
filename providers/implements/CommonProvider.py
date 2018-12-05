@@ -36,12 +36,12 @@ class CommonProvider(ProviderInterface):
 
         loginResult = loginResponse.json()
 
-        if hasattr(loginResult, 'name') and loginResult['name'] == self.conf['username']:
-            self.authCookie = loginResult.cookies.get_dict()
+        if 'name' in loginResult and loginResult['name'] == self.conf['username']:
+            self.authCookie = loginResponse.cookies.get_dict()
             tempfile = open(self.tempFile, 'w+')
             tempfile.write(json.dumps(self.authCookie))
         else:
-            if hasattr(loginResult, 'message'):
+            if 'message' in loginResult:
                 raise Exception(loginResult['message'])
             else:
                 raise Exception('登录出错,请检查配置参数')
