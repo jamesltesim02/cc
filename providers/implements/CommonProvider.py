@@ -66,13 +66,14 @@ class CommonProvider(ProviderInterface):
 
         i = 0
         while i < 3:     
-            self.__login__()
             if method == 'get':
                 result = requests.get(url, params = params, cookies = self.authCookie).json()
             else:
                 result = requests.post(url, data = params, cookies = self.authCookie).json()
             if result.has_key('data'):
                 break
+            else:
+                self.__login__()
 
         return result['data']
 
