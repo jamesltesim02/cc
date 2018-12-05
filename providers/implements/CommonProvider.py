@@ -45,19 +45,23 @@ class CommonProvider(ProviderInterface):
             if hasattr(self, 'authCookie') == False:
                 if os.path.exists(self.tempFile) == False:
                     self.__login__()
-                tempfileReader = open(self.tempFile, 'r')
-                self.authCookie = json.loads(tempfileReader.read())
+                else:
+                    tempfileReader = open(self.tempFile, 'r')
+                    self.authCookie = json.loads(tempfileReader.read())
+                    if not self.authCookie:
+                        self.__login__()
 
-        if method == 'get':
-            result = requests.get(url, params = params, cookies = self.authCookie).json()
-        else:
-            result = requests.post(url, data = params, cookies = self.authCookie).json()
-
-        if result['reponse_data_num'] != 1:
+        i = 0
+        while i < 3:     
             self.__login__()
-            return self.__invoke__(url, method, params, needAuth)
+            if method == 'get':
+                result = requests.get(url, params = params, cookies = self.authCookie).json()
+            else:
+                result = requests.post(url, data = params, cookies = self.authCookie).json()
+            if result.has_key('data'):
+                break
 
-        return result
+        return result['data']
 
     def getBuyin(self):
         """
@@ -93,7 +97,7 @@ class CommonProvider(ProviderInterface):
         return self.__invoke__(
             self.conf['buyinApi'],
             method = 'get'
-        )['data']
+        )
 
     def acceptBuyin(self, params):
         """
