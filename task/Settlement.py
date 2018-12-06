@@ -134,7 +134,7 @@ class Settlement(Task):
         buyInAmountResult = purse.getTotoalBuyinAmount(
             beginTime,
             endTime,
-            record['created_at'],
+            record['pccid'],
             joinToken
         )
         if buyInAmountResult['totalAmount'] < record['buy_in']:
