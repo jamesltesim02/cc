@@ -4,6 +4,7 @@
 
 from models import purse,conn,buyin
 from .task import Task
+import json
 
 class BuyinCheckin(Task):
 
@@ -28,7 +29,8 @@ class BuyinCheckin(Task):
                                 buyin.addBuyinLog(purseInfo, item, 'accept')
                                 purse.updatePurse(purseInfo, -int(item['amounts']))
                                 conn.commit()
-                            finally:
+                            except Exception as e:
+                                print e
                                 conn.rollback()
                             continue
                     else:               
