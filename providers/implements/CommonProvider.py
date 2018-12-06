@@ -70,13 +70,14 @@ class CommonProvider(ProviderInterface):
             if method == 'get':
                 result = requests.get(url, params = params, cookies = self.authCookie).json()
             else:
+                print(params)
                 result = requests.post(url, data = params, cookies = self.authCookie).json()
             if result.has_key('data'):
                 break
             else:
                 self.__login__()
 
-        # print(result)
+        print(result)
 
         return result['data']
 

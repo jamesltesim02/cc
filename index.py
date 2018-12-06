@@ -4,6 +4,7 @@
 from providers import ProviderFactory
 from task.Settlement import Settlement
 from models import purse,conn
+import traceback
 
 import time
 import datetime
@@ -20,20 +21,24 @@ import datetime
 # n_daysstr = n_days.strftime('%Y-%m-%d %H:%M:%S')
 # print(n_daysstr)
 
-bzlProvider = ProviderFactory.createProvider({
-    'name': 'bzl-provider',
-    'description': '宝芝林提供商(通用提供商)',
-    'module': 'providers.implements.CommonProvider',
-    'className': 'CommonProvider',
-    'username': 'controller12',
-    'password': '5589',
-    'apiUrl': 'https://yqdp-manager689125.gakuen.fun/api',
-    'transferCurrentGames': False,
-})
+# bzlProvider = ProviderFactory.createProvider({
+#     'name': 'bzl-provider',
+#     'description': '宝芝林提供商(通用提供商)',
+#     'module': 'providers.implements.CommonProvider',
+#     'className': 'CommonProvider',
+#     'username': 'controller12',
+#     'password': '5589',
+#     'apiUrl': 'https://yqdp-manager689125.gakuen.fun/api',
+#     'transferCurrentGames': False,
+# })
 
-settlement = Settlement(bzlProvider)
+# settlement = Settlement(bzlProvider)
 
-settlement.settlement()
+# settlement.settlement()
+try:
+    print(1/0)
+except Exception as e:
+    traceback.print_exc()
 
 # t = datetime.datetime.strptime('2018-12-03 18:32:43','%Y-%m-%d %H:%M:%S')
 # t = t + datetime.timedelta(seconds = -60)

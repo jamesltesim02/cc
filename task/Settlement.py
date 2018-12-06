@@ -14,15 +14,18 @@ import requests
 import base64
 import time
 import datetime
+from .task import Task
+
+import traceback
 
 from models import conn, purse, api, member
 
 TEMP_DIR = os.path.dirname(os.path.realpath(__file__)) + '/temp'
 
-class Settlement:
-    def __init__(self, provider):
-        self.provider = provider
-        self.conf = provider.conf
+class Settlement(Task):
+    def setApi(self, conf):
+        Task.setApi(self, conf)
+        self.conf = self.api.conf
         self.tempFile = '%s/settlementtime-%s.txt' % (TEMP_DIR, self.conf['name'])
 
     def queryUserBoardList(self, start, end, index = 0):
@@ -31,7 +34,7 @@ class Settlement:
             "end_time_end": end,
             "query_index": index
         }
-        data = self.provider.queryUserBoard(params)
+        data = self.api.queryUserBoard(params)
 
         if len(data) >= 30:
             newdata = self.queryUserBoardList(start, end, index = index + 30)
@@ -53,33 +56,34 @@ class Settlement:
         now = datetime.datetime.now()
         nowStr = now.strftime('%Y-%m-%d %H:%M:%S')
         lastTimeStr = False
+
         if os.path.exists(self.tempFile):
             try:
                 tempfileReader = open(self.tempFile, 'r')
                 lastTimeStr = json.loads(tempfileReader.read())['lastTime']
                 lastTime = datetime.datetime.strptime(lastTimeStr,'%Y-%m-%d %H:%M:%S')
-                lastTimeStr = (lastTime + datetime.timedelta(minutes = -500)).strftime('%Y-%m-%d %H:%M:%S')
+                lastTimeStr = (lastTime + datetime.timedelta(minutes = -60)).strftime('%Y-%m-%d %H:%M:%S')
             except Exception as e:
                 print(e)
         if not lastTimeStr:
             lastTimeStr = (now + datetime.timedelta(days = -3)).strftime('%Y-%m-%d %H:%M:%S')
 
-        # try:
-        dataList = self.queryUserBoardList(
-            lastTimeStr,
-            nowStr,
-            0
-        )
+        try:
+            dataList = self.queryUserBoardList(
+                lastTimeStr,
+                nowStr,
+                0
+            )
 
-        for record in dataList:
-            self.settleRecord(record)
+            for record in dataList:
+                self.settleRecord(record)
 
-            # tempfile = open(self.tempFile, 'w+')
-            # tempfile.write(json.dumps({
-            #     'lastTime': nowStr
-            # }))
-        # except Exception as e:
-        #     print(e)
+            tempfile = open(self.tempFile, 'w+')
+            tempfile.write(json.dumps({
+                'lastTime': nowStr
+            }))
+        except Exception as e:
+            print(e)
 
     def getCustTimestamp(self, timeStr, seconds = 0):
         t = datetime.datetime.strptime(timeStr,'%Y-%m-%d %H:%M:%S')
@@ -87,7 +91,6 @@ class Settlement:
         return str(time.mktime(t.timetuple()))
 
     def settleRecord(self, record):
-        print(record)
         currentTime = str(time.time())
         gameEndTime = self.getCustTimestamp(record['end_time'])
 
@@ -104,7 +107,6 @@ class Settlement:
         if not memberResult:
             gameEndLog['action'] = 'no UID'
             purse.addSettleFailLog(gameEndLog)
-            conn.commit()
             return
 
         # 结算判断的标志 pccid_table_number_boardId_roomId_clubUuid_buyIn_bringOut
@@ -126,7 +128,7 @@ class Settlement:
             return
 
         # 查询游戏期间该用户的所有带入金额是否足够与代理接口一致,不足则不结算
-        joinToken = base64.b64encode('%s_%s' % (record['club_name'], record['room_name']))
+        joinToken = base64.b64encode(('%s_%s' % (record['club_name'], record['room_name'])).encode('utf-8'))
         beginTime = self.getCustTimestamp(record['created_at'], seconds = -60)
         endTime = self.getCustTimestamp(record['end_time'], seconds = 60)
         buyInAmountResult = purse.getTotoalBuyinAmount(
@@ -142,7 +144,6 @@ class Settlement:
                 gameEndLog['action'] = 'no enough, local buyin: %s, remote buyin: %s' % (buyInAmountResult['totalAmount'], record['buy_in'])
             
             purse.addSettleFailLog(gameEndLog)
-            conn.commit()
             return
 
         # 记录结算日志
@@ -152,4 +153,10 @@ class Settlement:
         # 更新钱包
         purse.updatePurse(memberResult, record['buy_in'] + record['afterwater'])
 
-        conn.commit()
+    def callback(self):
+        try:
+            self.settlement()
+            conn.commit()
+        except Exception as e:
+            conn.rollback()
+            traceback.print_exc()

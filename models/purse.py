@@ -33,7 +33,7 @@ def getTotoalBuyinAmount(pccid, beginTime, endTime, joinToken):
       from
         onethink_join_game_log
       where
-        check_time between %d and %d
+        check_time between %s and %s
         and
         game_vid = %s
         and
