@@ -29,7 +29,8 @@ class BuyinCheckin(Task):
                                 buyin.addBuyinLog(purseInfo, item, 'accept')
                                 purse.updatePurse(purseInfo, -int(item['amounts']))
                                 conn.commit()
-                            finally:
+                            except Exception as e:
+                                print e
                                 conn.rollback()
                             continue
                     else:               

@@ -79,7 +79,8 @@ def syncSettlement(gameId, roomName, delta):
         updatePurse(info, delta)
         conn.commit()
         return True
-      finally:
+      except Exception as e:
+        print e
         conn.rollback()
   return False
 
