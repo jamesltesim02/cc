@@ -4,6 +4,7 @@
 
 from models import purse,conn,buyin
 from .task import Task
+import json
 
 class BuyinCheckin(Task):
 

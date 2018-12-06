@@ -21,7 +21,7 @@ class Task(object):
 	def handle(self):
 	    while not self.e.wait(self.interval):
 			print time.strftime("%Y-%m-%d %H:%M:%S")
-			# self.callback()
+			self.callback()
 
 	def start(self):
 		self.t.start()

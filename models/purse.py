@@ -11,7 +11,8 @@ def getBuyin(gameId, roomName):
 
   starttime = (datetime.date.today()-datetime.timedelta(1)).strftime("%s")
   endtime = (datetime.date.today()+datetime.timedelta(1)).strftime("%s")
-  sql = "SELECT * FROM `onethink_join_game_log` WHERE `game_vid` = %s AND `room_name` = %s AND `application_time` BETWEEN %s AND %s AND `check_status` = 'accept'"
+  sql = "SELECT * FROM `onethink_join_game_log` WHERE "\
+  "`game_vid` = %s AND `room_name` = %s AND `application_time` BETWEEN %s AND %s AND `check_status` = 'accept'"
   with conn.cursor() as cursor:
     cursor.execute(sql, (gameId, roomName, starttime, endtime))
     return cursor.fetchone()
@@ -19,7 +20,8 @@ def getBuyin(gameId, roomName):
 
 def getPurseInfoByGameId(gameId):
   with conn.cursor() as cursor:
-    sql = "select * from onethink_ucenter_vid_member as uv, onethink_player_purse as pp, onethink_ucenter_member as um where uv.game_vid=%s and uv.frontend_user_auth = pp.username and uv.frontend_user_auth = um.username"
+    sql = "select * from onethink_ucenter_vid_member as uv, onethink_player_purse as pp, onethink_ucenter_member as um"\
+    " where uv.game_vid=%s and uv.frontend_user_auth = pp.username and uv.frontend_user_auth = um.username"
     cursor.execute(sql, (gameId))
     return cursor.fetchone()
 
