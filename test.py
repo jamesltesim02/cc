@@ -27,5 +27,5 @@ t1.setApi({
     'password': '5589',
     'apiUrl': 'https://yqdp-manager689125.gakuen.fun/api',
 })
-t1.start()
-# t1.callback()
+# t1.start()
+t1.callback()
