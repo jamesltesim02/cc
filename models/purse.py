@@ -55,17 +55,62 @@ def updatePurse(info, delta):
   cash = int(info['cash'])+int(delta)
   sql = "update onethink_player_purse set cash=%s where id=%s"
   cursor.execute(sql, (str(cash), info['pp.id']))
-  sql = "INSERT INTO `onethink_auto_api_cash_log` (`username`, `cash`, `diamond`, `point`, `change_cash`, `change_diamond`, `change_point`, `apply_time`, `change_time`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-  cursor.execute(sql,
-    (info['frontend_user_auth'],
-    info['cash'],
-    info['diamond'],
-    info['point'],
-    str(cash),
-    info['diamond'],
-    info['point'],
-    timestamp,
-    timestamp))
+  sql = """
+        INSERT INTO `onethink_auto_api_cash_log` (
+          `username`,
+          `cash`,
+          `diamond`,
+          `point`,
+          `change_cash`,
+          `change_diamond`,
+          `change_point`,
+          `apply_time`,
+          `change_time`,
+          `settle_game_info`
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+  cursor.execute(
+    sql,
+    (
+      info['frontend_user_auth'],
+      info['cash'],
+      info['diamond'],
+      info['point'],
+      str(cash),
+      info['diamond'],
+      info['point'],
+      timestamp,
+      timestamp,
+      info['settle_game_info']
+    )
+  )
+
+def addSettleFailLog(data):
+  # add_purse_change_log
+  #onethink_api_import_game_end
+  cursor = conn.cursor()
+  sql = """
+          insert into onethink_api_import_game_end(
+            game_uid,
+            game_id,
+            board_id,
+            end_game_time,
+            apply_time,
+            action
+          )
+          values(%s, %s,  %s, %s, %s, %s)
+        """
+  cursor.execute(
+    sql,
+    (
+      data['game_uid'],
+      data['game_id'],
+      data['board_id'],
+      data['end_game_time'],
+      data['apply_time'],
+      data['action']
+    )
+  )
 
 #同步宝芝林，德扑圈结算信息信息
 def syncSettlement(gameId, roomName, delta):   

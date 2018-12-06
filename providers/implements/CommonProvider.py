@@ -41,6 +41,7 @@ class CommonProvider(ProviderInterface):
             tempfile = open(self.tempFile, 'w+')
             tempfile.write(json.dumps(self.authCookie))
         else:
+            print(loginResult)
             if 'message' in loginResult:
                 raise Exception(loginResult['message'])
             else:

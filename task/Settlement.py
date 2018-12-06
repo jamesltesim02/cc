@@ -4,6 +4,10 @@
 # ALTER TABLE `onethink_auto_api_cash_log`
 # 	ADD COLUMN `settle_game_info` VARCHAR(255) NULL AFTER `change_time`;
 
+# ALTER TABLE `onethink_api_import_game_end`
+# 	CHANGE COLUMN `game_id` `game_id` VARCHAR(255) NULL DEFAULT '0' COMMENT 'API遊戲局ID' AFTER `game_uid`,
+# 	ADD COLUMN `board_id` VARCHAR(255) NULL DEFAULT '0' COMMENT 'api游戏局id' AFTER `game_id`;
+
 import os
 import json
 import requests
@@ -11,7 +15,7 @@ import base64
 import time
 import datetime
 
-from models import purse
+from models import conn, purse, api, member
 
 TEMP_DIR = os.path.dirname(os.path.realpath(__file__)) + '/temp'
 
@@ -36,6 +40,16 @@ class Settlement:
         return data
 
     def settlement(self):
+        # try:
+        #     # 判断是否开启
+        #     statusResult = api.getLoginInfo(5)
+        #     # 关闭同步功能
+        #     if not statusResult or statusResult['status'] == 0:
+        #         return
+        # except Exception as e:
+        #     print(e)
+        #     return
+        
         now = datetime.datetime.now()
         nowStr = now.strftime('%Y-%m-%d %H:%M:%S')
         lastTimeStr = False
@@ -50,27 +64,50 @@ class Settlement:
         if not lastTimeStr:
             lastTimeStr = (now + datetime.timedelta(days = -3)).strftime('%Y-%m-%d %H:%M:%S')
 
+        # try:
         dataList = self.queryUserBoardList(
             lastTimeStr,
             nowStr,
             0
         )
 
-        tempfile = open(self.tempFile, 'w+')
-        tempfile.write(json.dumps({
-            'lastTime': nowStr
-        }))
-
         for record in dataList:
             self.settleRecord(record)
+
+            # tempfile = open(self.tempFile, 'w+')
+            # tempfile.write(json.dumps({
+            #     'lastTime': nowStr
+            # }))
+        # except Exception as e:
+        #     print(e)
 
     def getCustTimestamp(self, timeStr, seconds = 0):
         t = datetime.datetime.strptime(timeStr,'%Y-%m-%d %H:%M:%S')
         t = t + datetime.timedelta(seconds = seconds)
-        return t
+        return str(time.mktime(t.timetuple()))
 
     def settleRecord(self, record):
-        # pccid_table_number_boardId_roomId_clubUuid_buyIn_bringOut
+        print(record)
+        currentTime = str(time.time())
+        gameEndTime = self.getCustTimestamp(record['end_time'])
+
+        gameEndLog = {
+            'game_uid': record['pccid'],
+            'game_id': '',
+            'board_id': record['board_id'],
+            'end_game_time': gameEndTime,
+            'apply_time': currentTime
+        }
+
+        # 判断是否查无此人
+        memberResult = member.getMemberInfo(record['pccid'])
+        if not memberResult:
+            gameEndLog['action'] = 'no UID'
+            purse.addSettleFailLog(gameEndLog)
+            conn.commit()
+            return
+
+        # 结算判断的标志 pccid_table_number_boardId_roomId_clubUuid_buyIn_bringOut
         settleGameInfo = base64.b64encode(
             '%s_%s_%s_%s_%s_%s_%s'  % (
                 record['pccid'],
@@ -88,7 +125,7 @@ class Settlement:
         if countResult['settle_count'] > 0:
             return
 
-        # 查询提案表中是有对应提案,如果没有则抛弃
+        # 查询游戏期间该用户的所有带入金额是否足够与代理接口一致,不足则不结算
         joinToken = base64.b64encode('%s_%s' % (record['club_name'], record['room_name']))
         beginTime = self.getCustTimestamp(record['created_at'], seconds = -60)
         endTime = self.getCustTimestamp(record['end_time'], seconds = 60)
@@ -98,27 +135,21 @@ class Settlement:
             record['created_at'],
             joinToken
         )
-
         if buyInAmountResult['totalAmount'] < record['buy_in']:
-            # 如果大于0 则记录日志并返回
-            # 如果为0 直接返回
+            if buyInAmountResult['totalAmount'] == 0:
+                gameEndLog['action'] = 'no Buyin'
+            else:
+                gameEndLog['action'] = 'no enough, local buyin: %s, remote buyin: %s' % (buyInAmountResult['totalAmount'], record['buy_in'])
+            
+            purse.addSettleFailLog(gameEndLog)
+            conn.commit()
             return
-        
-        # 查询反水额度计算反水
-
-        # 更新钱包
 
         # 记录结算日志
+        gameEndLog['action'] = 'OK'
+        purse.addSettleFailLog(gameEndLog)
 
-        # commit
-        # print(record)
+        # 更新钱包
+        purse.updatePurse(memberResult, record['buy_in'] + record['afterwater'])
 
-
-# now = datetime.datetime.now()
-# nowstr = now.strftime('%Y-%m-%d %H:%M:%S')
-# print(nowstr)
-
-# delta = datetime.timedelta(days=-3)
-# n_days = now + delta
-# n_daysstr = n_days.strftime('%Y-%m-%d %H:%M:%S')
-# print(n_daysstr)
+        conn.commit()
