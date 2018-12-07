@@ -4,9 +4,8 @@
 
 import time
 import base64
-from . import conn
 
-def addBuyinLog(purseInfo, buyin, action):
+def addBuyinLog(conn, purseInfo, buyin, action):
 	with conn.cursor() as cursor:
 		clubName = "Not_recorded"
 		clubRoomName = base64.b64encode((buyin['club_name']+'_'+buyin['room_name']).encode('utf-8'))

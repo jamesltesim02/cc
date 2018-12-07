@@ -3,11 +3,10 @@
 
 import time
 import datetime
-from . import conn
 
 API_BZL_ID = 3
 
-def getLimitGameId():
+def getLimitGameId(conn):
 	with conn.cursor() as cursor:
 		sql = "SELECT `game_id` FROM `onethink_api_import_game_end` ORDER BY id desc LIMIT 1"
 		cursor.execute(sql)
@@ -15,14 +14,14 @@ def getLimitGameId():
 		return rel['game_id']
 
 
-def getLoginInfo(apiId):
+def getLoginInfo(conn, apiId):
 	with conn.cursor() as cursor:
 		sql = "SELECT * FROM `onethink_api_member` WHERE `id` = %s"
 		cursor.execute(sql, (apiId))
 		rel = cursor.fetchone()
 		return rel
 
-def insertGameList(gameInfo):
+def insertGameList(conn, gameInfo):
 	cursor = conn.cursor()
 	timestamp, ms = divmod(game_list_info['createtime'], 1000)
 	sql = "INSERT INTO `onethink_historygamelist`(`roomname`, `bigblind`, `createuser`, `gameroomtype`, `hands`, `iAnte`, `leagueid`, `maxplayer`, `players`, `roomid`, `smallblind`, `createtime`)"\
@@ -41,7 +40,7 @@ def insertGameList(gameInfo):
 		str(gameInfo['smallblind']),
 		str(gameInfo['timestamp'])))
 
-def insertGameDetail(gameDetail, infoId, username, bonus, back):
+def insertGameDetail(conn, gameDetail, infoId, username, bonus, back):
 	cursor = conn.cursor()
 	sql = "INSERT INTO `onethink_historygamedetail`(`insuranceGetStacks`, `info_id`, `showId`, `clubId`, `bonus`, `strCover`, `strNick`, `strSmallCover`, `gameType`, `clubName`, `buyinStack`, `fantseynum`, `insuranceBuyStacks`, `remainStack`, `uuid`, `insurance`, `InsurancePremium`, `endTime`, `bz_username`, `afbonus`, `back`) "\
 	"VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -64,27 +63,27 @@ def insertGameDetail(gameDetail, infoId, username, bonus, back):
 		str(bonus),
 		str(back)))
 
-def getGameList(createtime, roomid):
+def getGameList(conn, createtime, roomid):
 	cursor = conn.cursor()
 	timestamp, ms = divmod(createtime, 1000)
 	sql = "SELECT * FROM `onethink_historygamelist` WHERE `roomid` = %s AND `createtime` = %s"
 	cursor.execute(sql, (str(roomid), str(timestamp)))
 	return cursor.fetchone()
 
-def check_game_detail(roomid, uid):
+def check_game_detail(conn, roomid, uid):
 	cursor = conn.cursor()
 	sql = "SELECT * FROM `onethink_historygamedetail` WHERE `showId` = %s AND `info_id` = %s"
 	cursor.execute(sql, (str(uid), str(roomid)))
 	return cursor.fetchone()
 
-def getSpecialBack(clubid):
+def getSpecialBack(conn, clubid):
 	cursor = conn.cursor()
 	sql = "SELECT * FROM `onethink_cms_special_session_back` WHERE `clubid` = %s"
 	cursor.execute(sql, (clubid))
 	return cursor.fetchone()
 
 
-def addApiImportLog(uid, roomname, roomid, createtime, enddate, action, applyTime):
+def addApiImportLog(conn, uid, roomname, roomid, createtime, enddate, action, applyTime):
 
 	enddate = str(time.mktime(datetime.datetime.strptime(enddate, "%Y-%m-%d %H:%M:%S").timetuple()))
 	timestamp, ms = divmod(createtime, 1000)

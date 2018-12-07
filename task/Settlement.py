@@ -16,6 +16,9 @@ from models import conn, purse, api, member
 TEMP_DIR = os.path.dirname(os.path.realpath(__file__)) + '/temp'
 
 class Settlement(Task):
+  
+  conn = None
+
   def setApi(self, conf):
     Task.setApi(self, conf)
     self.conf = self.api.conf
@@ -97,10 +100,10 @@ class Settlement(Task):
     }
 
     # 判断是否查无此人
-    memberResult = purse.getPurseInfoByGameId(record['pccid'])
+    memberResult = purse.getPurseInfoByGameId(self.conn, record['pccid'])
     if not memberResult:
       gameEndLog['action'] = 'no UID'
-      purse.addSettleFailLog(gameEndLog)
+      purse.addSettleFailLog(self.conn, gameEndLog)
       return
 
     # 结算判断的标志 pccid_table_number_boardId_roomId_clubUuid_buyIn_bringOut
@@ -117,7 +120,7 @@ class Settlement(Task):
     )
 
     # 查询结算表中是否已有结算记录.如果已经存在,则抛弃
-    countResult = purse.getSettleRecord(settleGameInfo)
+    countResult = purse.getSettleRecord(self.conn, settleGameInfo)
     if countResult['settle_count'] > 0:
       return
 
@@ -126,6 +129,7 @@ class Settlement(Task):
     beginTime = self.getCustTimestamp(record['created_at'], seconds = -60)
     endTime = self.getCustTimestamp(record['end_time'], seconds = 60)
     buyInAmountResult = purse.getTotoalBuyinAmount(
+      self.conn,
       record['pccid'],
       beginTime,
       endTime,
@@ -138,20 +142,22 @@ class Settlement(Task):
       else:
         gameEndLog['action'] = 'no enough, local buyin: %s, remote buyin: %s' % (buyInAmountResult['totalAmount'], record['buy_in'])
       
-      purse.addSettleFailLog(gameEndLog)
+      purse.addSettleFailLog(self.conn, gameEndLog)
       return
 
     # 记录结算日志
     gameEndLog['action'] = 'OK'
-    purse.addSettleFailLog(gameEndLog)
+    purse.addSettleFailLog(self.conn, gameEndLog)
 
     memberResult['settle_game_info'] = settleGameInfo
 
     # 更新钱包
-    purse.updatePurse(memberResult, record['buy_in'] + record['afterwater'])
+    purse.updatePurse(self.conn, memberResult, record['buy_in'] + record['afterwater'])
 
   def callback(self):
     try:
+      self.conn = conn()
       self.settlement()
+      self.conn.close()
     except Exception as e:
       traceback.print_exc()

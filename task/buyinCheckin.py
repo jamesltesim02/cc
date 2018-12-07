@@ -8,11 +8,13 @@ import json
 
 class BuyinCheckin(Task):
 
+    conn = None
     def callback(self):
+        self.conn = conn()
         list =  self.api.getBuyin()
         for item in list:
             if int(item['suggest']) > -2:
-                purseInfo = purse.getPurseInfoByGameId(item['pccid'])
+                purseInfo = purse.getPurseInfoByGameId(self.conn, item['pccid'])
                 if purseInfo:
                     data = {
                         'club_name':item["club_name"], 
@@ -26,18 +28,15 @@ class BuyinCheckin(Task):
                         code = self.api.acceptBuyin(data)
                         if code == 200:              
                             try:
-                                buyin.addBuyinLog(purseInfo, item, 'accept')
-                                purse.updatePurse(purseInfo, -int(item['amounts']))
-                                conn.commit()
+                                purse.syncBuyin(self.conn, purseInfo, item, -int(item['amounts']))
                             except Exception as e:
                                 print e
-                                conn.rollback()
                             continue
                     else:               
                         code = self.api.denyBuyin(data)
                         if code == 200:
-                            buyin.addBuyinLog(purseInfo, item, 'deny')
-                            conn.commit()
+                            buyin.addBuyinLog(self.conn, purseInfo, item, 'deny')
+                            self.conn.commit()
 
                 else:
                     code = self.api.denyBuyin(data)
@@ -46,5 +45,6 @@ class BuyinCheckin(Task):
                         purseInfo['frontend_user_id'] = 'no purse'
                         purseInfo['frontend_user_auth'] = 'no purse'
                         purseInfo['game_vid'] = item["pccid"]
-                        buyin.addBuyinLog(purseInfo, item, 'deny')
-                        conn.commit()
+                        buyin.addBuyinLog(self.conn, purseInfo, item, 'deny')
+                        self.conn.commit()
+        self.conn.close()

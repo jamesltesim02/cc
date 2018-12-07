@@ -4,11 +4,12 @@
 
 import pymysql
 
-conn = pymysql.connect(host='54.213.203.214',
-                       port=3306,
-                       user='test',
-                       password='10-9=1',
-                       db='holdem',
-                       charset='utf8',
-                       cursorclass=pymysql.cursors.DictCursor,
-                       autocommit=False)
+def conn():
+	return pymysql.connect(host='54.213.203.214',
+                   port=3306,
+                   user='test',
+                   password='10-9=1',
+                   db='holdem',
+                   charset='utf8',
+                   cursorclass=pymysql.cursors.DictCursor,
+                   autocommit=False)
