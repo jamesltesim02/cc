@@ -41,7 +41,7 @@ class Settlement(Task):
   def settlement(self):
     try:
       # 判断是否开启
-      statusResult = api.getLoginInfo(5)
+      statusResult = api.getLoginInfo(self.conn, self.conf['serviceCode'])
       # 关闭同步功能
       if not statusResult or statusResult['status'] == 0:
         return
@@ -85,9 +85,6 @@ class Settlement(Task):
     return str(time.mktime(t.timetuple()))
 
   def settleRecord(self, record):
-
-    print(record)
-
     currentTime = str(time.time())
     gameEndTime = self.getCustTimestamp(record['end_time'])
 
@@ -135,7 +132,7 @@ class Settlement(Task):
       endTime,
       joinToken
     )
-    print(buyInAmountResult)
+
     if buyInAmountResult['totalAmount'] < record['buy_in']:
       if not buyInAmountResult['totalAmount'] or buyInAmountResult['totalAmount'] == 0:
         gameEndLog['action'] = 'no Buyin'
@@ -158,6 +155,7 @@ class Settlement(Task):
     try:
       self.conn = conn()
       self.settlement()
-      self.conn.close()
     except Exception as e:
       traceback.print_exc()
+    finally:
+      self.conn.close()

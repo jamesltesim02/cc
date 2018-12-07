@@ -5,6 +5,8 @@ import os
 import json
 import requests
 import base64
+from models import conn, api
+import traceback
 from providers.ProviderInterface import ProviderInterface
 
 TEMP_DIR = os.path.dirname(os.path.realpath(__file__)) + '/temp'
@@ -13,6 +15,9 @@ class CommonProvider(ProviderInterface):
     """
     通用提供商,满足通用api规范则可使用
     """
+
+    conn = None
+    authCookie = None
 
     def __init__(self, conf):
         """
@@ -27,7 +32,17 @@ class CommonProvider(ProviderInterface):
         登录
         """
 
-        loginAuth = base64.b64encode('%s:%s' % (self.conf['username'], self.conf['password']))
+        try:
+            self.conn = conn()
+            # 判断是否开启
+            statusResult = api.getLoginInfo(self.conn, self.conf['serviceCode'])
+        except Exception as e:
+            traceback.print_exc()
+            return
+        finally:
+            self.conn.close()
+        
+        loginAuth = base64.b64encode('%s:%s' % (statusResult['username'], statusResult['pw']))
 
         loginResponse =  requests.post(
             '%s/login_admin' % self.conf['apiUrl'],
@@ -36,16 +51,12 @@ class CommonProvider(ProviderInterface):
 
         loginResult = loginResponse.json()
 
-        if 'name' in loginResult and loginResult['name'] == self.conf['username']:
+        if 'name' in loginResult and loginResult['name'] == statusResult['username']:
             self.authCookie = loginResponse.cookies.get_dict()
             tempfile = open(self.tempFile, 'w+')
             tempfile.write(json.dumps(self.authCookie))
         else:
             print(loginResult)
-            if 'message' in loginResult:
-                raise Exception(loginResult['message'])
-            else:
-                raise Exception('登录出错,请检查配置参数')
 
     def __invoke__(self, url, method = 'post', params = {}, needAuth = True):
         """
@@ -70,14 +81,11 @@ class CommonProvider(ProviderInterface):
             if method == 'get':
                 result = requests.get(url, params = params, cookies = self.authCookie).json()
             else:
-                print(params)
                 result = requests.post(url, data = params, cookies = self.authCookie).json()
             if result.has_key('data'):
                 break
             else:
                 self.__login__()
-
-        print(result)
 
         return result['data']
 
