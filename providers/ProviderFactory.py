@@ -3,7 +3,7 @@
 
 from ProviderInterface import ProviderInterface
 
-def createProvider(conf):
+def createProvider(conf, dbconf):
     providerModule = __import__(conf['module'])
     moduleNames = conf['module'].split('.')
     moduleNames.pop(0)
@@ -12,6 +12,6 @@ def createProvider(conf):
     providerType = getattr(providerModule, conf['className'])
 
     if issubclass(providerType, ProviderInterface):
-        return providerType(conf)
+        return providerType(conf, dbconf)
 
     raise Exception('provider必须继承自ProviderInterface')

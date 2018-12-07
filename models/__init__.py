@@ -5,11 +5,11 @@
 import pymysql
 
 def conn(config):
-	return pymysql.connect(host=config['db']['host'],
-                   port=config['db']['port'],
-                   user=config['db']['user'],
-                   password=config['db']['password'],
-                   db=config['db']['host'],
-                   charset=config['db']['host'],
+	return pymysql.connect(host=config['host'],
+                   port=config['port'],
+                   user=config['user'],
+                   password=config['password'],
+                   db=config['db'],
+                   charset=config['charset'],
                    cursorclass=pymysql.cursors.DictCursor,
                    autocommit=False)

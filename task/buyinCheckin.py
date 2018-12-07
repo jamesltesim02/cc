@@ -11,13 +11,11 @@ class BuyinCheckin(Task):
 
     conn = None
     def callback(self):
-        self.conn = conn(self.config)
+        self.conn = conn(self.config['db'])
+        self.conn.close()
         list =  self.api.getBuyin()
         for item in list:
             if int(item['suggest']) > -2:
-                purseInfo = purse.getPurseInfoByGameId(self.conn, item['pccid'])
-                print purseInfo
-                exit(0)
                 if purseInfo:
                     data = {
                         'club_name':item["club_name"], 
@@ -50,4 +48,4 @@ class BuyinCheckin(Task):
                         purseInfo['game_vid'] = item["pccid"]
                         buyin.addBuyinLog(self.conn, purseInfo, item, 'deny')
                         self.conn.commit()
-        self.conn.close()
+        

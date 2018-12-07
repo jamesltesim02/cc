@@ -1,15 +1,18 @@
+#!/usr/bin/python
+# -*- coding: UTF-8 -*-
+
+
 config = {
-	'common-provider':{
-	    'name': ,
+	'bzl-provider':{
+		'name': 'bzl-provider',
 	    'description': '通用提供商',
 	    'module': 'providers.implements.CommonProvider',
 	    'className': 'CommonProvider',
-	    'username': 'controller12',
-	    'password': '5589',
+	    'serviceCode': 4,
 	    'apiUrl': 'https://yqdp-manager689125.gakuen.fun/api',
 	},
 	"db":{
-		"host":'54.213.203.214',
+		"host":"54.213.203.214",
 		"port":3306,
 		"user":'test',
 		"password":'10-9=1',
