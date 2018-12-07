@@ -6,15 +6,18 @@ from models import purse,conn,buyin
 from .task import Task
 import json
 
+
 class BuyinCheckin(Task):
 
     conn = None
     def callback(self):
-        self.conn = conn()
+        self.conn = conn(self.config)
         list =  self.api.getBuyin()
         for item in list:
             if int(item['suggest']) > -2:
                 purseInfo = purse.getPurseInfoByGameId(self.conn, item['pccid'])
+                print purseInfo
+                exit(0)
                 if purseInfo:
                     data = {
                         'club_name':item["club_name"], 
