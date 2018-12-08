@@ -7,6 +7,7 @@ import datetime
 import time
 import traceback
 import base64
+import hashlib
 
 
 def getBuyin(conn, gameId, roomName):
@@ -155,6 +156,21 @@ def syncSettlement(conn, gameId, roomName, delta):
 def syncBuyin(conn, purseInfo, buyin, delta):
   cursor = conn.cursor()
   try:
+    #防止24h重复审核
+    now = time.time()
+    buyinKeys = buyin.keys()
+    buyinKeys.sort()
+    identify = ''
+    for key in buyinKeys:
+      identify += '%s:%s' %(key, buyin[key])
+    identify = hashlib.md5(identify.encode('utf-8')).hexdigest()
+    sql = "select apply_time from onethink_auto_api_cash_log where settle_game_info=%s"
+    cursor.execute(sql, (identify))
+    rel = cursor.fetchone()
+    if rel != None and int(now)-int(rel['apply_time']) <= 24*60*60:
+      cursor.close()
+      return
+
     clubName = "Not_recorded"
     clubRoomName = base64.b64encode((buyin['club_name']+'_'+buyin['room_name']).encode('utf-8'))
     sql = "INSERT INTO `onethink_join_game_log` ( `userid`, `username`, `game_vid`, `club_id`,"\
@@ -203,7 +219,7 @@ def syncBuyin(conn, purseInfo, buyin, delta):
         purseInfo['point'],
         timestamp,
         timestamp,
-        ''
+        identify
       )
     )
     cursor.close()

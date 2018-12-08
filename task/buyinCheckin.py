@@ -27,7 +27,8 @@ class BuyinCheckin(Task):
                         'amounts':item["amounts"]
                     }
                     if int(purseInfo['cash']) >= int(item['amounts']):
-                        code = self.api.acceptBuyin(data)
+                        # code = self.api.acceptBuyin(data)
+                        code = 200
                         if code == 200:              
                             try:
                                 purse.syncBuyin(self.conn, purseInfo, item, -int(item['amounts']))
