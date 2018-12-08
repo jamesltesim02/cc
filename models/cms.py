@@ -27,80 +27,80 @@ def addBuyinLog(conn, purseInfo, buyin, action):
 
 def updatePurse(conn, info, delta):
 
-  cursor = conn.cursor()
-  try:
-    timestamp = str(time.time())
-    cash = int(info['cash'])+int(delta)
-    sql = "update onethink_player_purse set cash=%s where id=%s"
-    cursor.execute(sql, (str(cash), info['pp.id']))
-    sql = """
-          INSERT INTO `onethink_cms_auto_cash_log` (
-            `username`,
-            `cash`,
-            `diamond`,
-            `point`,
-            `change_cash`,
-            `change_diamond`,
-            `change_point`,
-            `apply_time`,
-            `change_time`,
-            `game_id`,
-            `settle_game_info`,
-          ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-          """
+	cursor = conn.cursor()
+	try:
+	timestamp = str(time.time())
+	cash = int(info['cash'])+int(delta)
+	sql = "update onethink_player_purse set cash=%s where id=%s"
+	cursor.execute(sql, (str(cash), info['pp.id']))
+	sql = """
+	      INSERT INTO `onethink_cms_auto_cash_log` (
+	        `username`,
+	        `cash`,
+	        `diamond`,
+	        `point`,
+	        `change_cash`,
+	        `change_diamond`,
+	        `change_point`,
+	        `apply_time`,
+	        `change_time`,
+	        `game_id`,
+	        `settle_game_info`,
+	      ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+	      """
 
-    print(sql)
-    print((
-        info['frontend_user_auth'],
-        info['cash'],
-        info['diamond'],
-        info['point'],
-        str(cash),
-        info['diamond'],
-        info['point'],
-        timestamp,
-        timestamp,
-        info['game_id']
-        info['settle_game_info']
-      ))
-    cursor.execute(
-      sql,
-      (
-        info['frontend_user_auth'],
-        info['cash'],
-        info['diamond'],
-        info['point'],
-        str(cash),
-        info['diamond'],
-        info['point'],
-        timestamp,
-        timestamp,
-        info['game_id']
-        info['settle_game_info']
-      )
-    )
-    cursor.close()
-    conn.commit()
-  except Exception as e:
-    cursor.close()
-    conn.rollback()
+	print(sql)
+	print((
+	    info['frontend_user_auth'],
+	    info['cash'],
+	    info['diamond'],
+	    info['point'],
+	    str(cash),
+	    info['diamond'],
+	    info['point'],
+	    timestamp,
+	    timestamp,
+	    info['game_id']
+	    info['settle_game_info']
+	  ))
+	cursor.execute(
+	  sql,
+	  (
+	    info['frontend_user_auth'],
+	    info['cash'],
+	    info['diamond'],
+	    info['point'],
+	    str(cash),
+	    info['diamond'],
+	    info['point'],
+	    timestamp,
+	    timestamp,
+	    info['game_id']
+	    info['settle_game_info']
+	  )
+	)
+	cursor.close()
+	conn.commit()
+	except Exception as e:
+	cursor.close()
+	conn.rollback()
 
 
-def addSettleFailLog(conn, data):
-  	cursor = conn.cursor()
-  	sql = """
-          insert into onethink_cms_game_end(
-            game_uid,
-            game_name,
-            game_id,
-            board_id,
-            create_game_time,
-            end_game_time,
-            apply_time,
-            action
-          )
-          values(%s, %s,  %s, %s, %s, %s)
-        """
+	def addSettleFailLog(conn, data):
+		cursor = conn.cursor()
+		sql = """
+	      insert into onethink_cms_game_end(
+	        game_uid,
+	        game_name,
+	        game_id,
+	        board_id,
+	        create_game_time,
+	        end_game_time,
+	        apply_time,
+	        action
+	      )
+	      values(%s, %s,  %s, %s, %s, %s)
+	    """
 	cursor.execute(
 	    sql,
 	    (
@@ -118,14 +118,14 @@ def addSettleFailLog(conn, data):
 
 def getBuyin(conn, gameId, roomName, roomId):
 
-  starttime = (datetime.date.today()-datetime.timedelta(1)).strftime("%s")
-  endtime = (datetime.date.today()+datetime.timedelta(1)).strftime("%s")
-  sql = "SELECT * FROM `onethink_cms_buyin_log` WHERE "\
-  "`game_vid` = %s AND `room_name` = %s AND room_id= %S "\
-  "AND `application_time` BETWEEN %s AND %s AND `check_status` = 'accept'"
-  with conn.cursor() as cursor:
-    cursor.execute(sql, (gameId, roomName, roomid, starttime, endtime))
-    return cursor.fetchone()
+	starttime = (datetime.date.today()-datetime.timedelta(1)).strftime("%s")
+	endtime = (datetime.date.today()+datetime.timedelta(1)).strftime("%s")
+	sql = "SELECT * FROM `onethink_cms_buyin_log` WHERE "\
+	"`game_vid` = %s AND `room_name` = %s AND room_id= %S "\
+	"AND `application_time` BETWEEN %s AND %s AND `check_status` = 'accept'"
+	with conn.cursor() as cursor:
+		cursor.execute(sql, (gameId, roomName, roomid, starttime, endtime))
+		return cursor.fetchone()
 
 def check_game_list(conn, createtime, roomid):
 	cursor = conn.cursor()
