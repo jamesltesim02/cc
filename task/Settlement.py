@@ -71,6 +71,8 @@ class Settlement(Task):
         0
       )
 
+      print('共抓取到%s条记录' % len(dataList))
+
       for record in dataList:
         self.settleRecord(record)
 
@@ -79,9 +81,9 @@ class Settlement(Task):
     except Exception as e:
       traceback.print_exc()
 
-  def getCustTimestamp(self, timeStr, seconds = 0):
+  def getCustTimestamp(self, timeStr, seconds = 0, minutes = 0):
     t = datetime.datetime.strptime(timeStr,'%Y-%m-%d %H:%M:%S')
-    t = t + datetime.timedelta(seconds = seconds)
+    t = t + datetime.timedelta(seconds = seconds, minutes = minutes)
     return str(time.mktime(t.timetuple()))
 
   def settleRecord(self, record):
@@ -90,15 +92,19 @@ class Settlement(Task):
 
     gameEndLog = {
       'game_uid': record['pccid'],
-      'game_id': '',
+      'game_id': record['room_name'],
       'board_id': record['board_id'],
       'end_game_time': gameEndTime,
       'apply_time': currentTime
     }
 
+
+    print(('开始处理:', record))
+
     # 判断是否查无此人
     memberResult = purse.getPurseInfoByGameId(self.conn, record['pccid'])
     if not memberResult:
+      print('查无此人')
       gameEndLog['action'] = 'no UID'
       purse.addSettleFailLog(self.conn, gameEndLog)
       return
@@ -119,12 +125,15 @@ class Settlement(Task):
     # 查询结算表中是否已有结算记录.如果已经存在,则抛弃
     countResult = purse.getSettleRecord(self.conn, settleGameInfo)
     if countResult['settle_count'] > 0:
+      print('已被结算')
       return
 
     # 查询游戏期间该用户的所有带入金额是否足够与代理接口一致,不足则不结算
     joinToken = base64.b64encode(('%s_%s' % (record['club_name'], record['room_name'])).encode('utf-8'))
-    beginTime = self.getCustTimestamp(record['created_at'], seconds = -60)
-    endTime = self.getCustTimestamp(record['end_time'], seconds = 60)
+    print('带入token: %s' % joinToken)
+
+    beginTime = self.getCustTimestamp(record['end_time'], minutes = -720)
+    endTime = self.getCustTimestamp(record['end_time'], minutes = 120)
     buyInAmountResult = purse.getTotoalBuyinAmount(
       self.conn,
       record['pccid'],
@@ -133,12 +142,16 @@ class Settlement(Task):
       joinToken
     )
 
+    print(('带入总金额:',buyInAmountResult))
+
     if buyInAmountResult['totalAmount'] < record['buy_in']:
       if not buyInAmountResult['totalAmount'] or buyInAmountResult['totalAmount'] == 0:
+        print('无带入提案')
         gameEndLog['action'] = 'no Buyin'
       else:
+        print('带入金额不匹配, local: %s, remote %s' % (buyInAmountResult['totalAmount'], record['buy_in']))
         gameEndLog['action'] = 'no enough, local buyin: %s, remote buyin: %s' % (buyInAmountResult['totalAmount'], record['buy_in'])
-      
+    
       purse.addSettleFailLog(self.conn, gameEndLog)
       return
 
