@@ -26,7 +26,7 @@ class CmsProvider(ProviderInterface):
         self.apiBack = apiuser['back'] #特殊战局
         self.clubId = '21647880'
         self.conf = conf
-        self.tempFile = '%s/%s.txt' % (TEMP_DIR, self.conf['name'])
+        self.conn.close()
 
     def getBuyin(self):
         """

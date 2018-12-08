@@ -5,6 +5,8 @@
 import pymysql
 import datetime
 import time
+import traceback
+import base64
 
 
 def getBuyin(conn, gameId, roomName):
@@ -168,7 +170,7 @@ def syncBuyin(conn, purseInfo, buyin, delta):
       str(time.time()),
       'Auto_Buyin_Tool_B', 
       "accept",
-      buyin['room_name'],
+      buyin['room_name'].encode('utf-8'),
       clubRoomName))
 
     timestamp = str(time.time())
@@ -201,11 +203,12 @@ def syncBuyin(conn, purseInfo, buyin, delta):
         purseInfo['point'],
         timestamp,
         timestamp,
-        purseInfo['settle_game_info']
+        ''
       )
     )
     cursor.close()
     conn.commit()
   except Exception as e:
+    traceback.print_exc()
     cursor.close()
     conn.rollback()

@@ -83,10 +83,15 @@ class CommonProvider(ProviderInterface):
                 result = requests.get(url, params = params, cookies = self.authCookie).json()
             else:
                 result = requests.post(url, data = params, cookies = self.authCookie).json()
+
             if result.has_key('data'):
+                break
+            elif result.has_key('status') and result['status']==0:
+                result['data'] = 200
                 break
             else:
                 self.__login__()
+            i+=1
 
         return result['data']
 
@@ -142,7 +147,7 @@ class CommonProvider(ProviderInterface):
         """
 
         return self.__invoke__(
-            '%s/accept_buy' % self.conf['apiUrl'],
+            '%s/control_cms/accept_buy' % self.conf['apiUrl'],
             params = params
         )
 
@@ -162,7 +167,7 @@ class CommonProvider(ProviderInterface):
         """
 
         return self.__invoke__(
-            '%s/deny_buy' % self.conf['apiUrl'],
+            '%s/control_cms/accept_buy' % self.conf['apiUrl'],
             params = params
         )
 

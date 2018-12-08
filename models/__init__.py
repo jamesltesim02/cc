@@ -10,6 +10,6 @@ def conn(config):
                    user=config['user'],
                    password=config['password'],
                    db=config['db'],
-                   charset=config['charset'],
+                   # charset=config['charset'],
                    cursorclass=pymysql.cursors.DictCursor,
                    autocommit=False)

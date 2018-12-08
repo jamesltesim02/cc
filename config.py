@@ -17,7 +17,7 @@ config = {
 	    'module': 'providers.implements.CmsProvider',
 	    'className': 'CmsProvider',
 	    'serviceCode': 4,
-	    'apiUrl': 'https://yqdp-manager689125.gakuen.fun/api',
+	    'apiUrl': 'http://cms.pokermanager.club',
 	},
 	"db":{
 		"host":"54.213.203.214",
