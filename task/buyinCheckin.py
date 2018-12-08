@@ -16,6 +16,7 @@ class BuyinCheckin(Task):
         list =  self.api.getBuyin()
         for item in list:
             if int(item['suggest']) > -2:
+                purseInfo = purse.getPurseInfoByGameId(self.conn, item['pccid'])
                 if purseInfo:
                     data = {
                         'club_name':item["club_name"], 

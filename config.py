@@ -11,6 +11,14 @@ config = {
 	    'serviceCode': 4,
 	    'apiUrl': 'https://yqdp-manager689125.gakuen.fun/api',
 	},
+	'cms-provider':{
+		'name': 'cms-provider',
+	    'description': '通用提供商',
+	    'module': 'providers.implements.CmsProvider',
+	    'className': 'CmsProvider',
+	    'serviceCode': 4,
+	    'apiUrl': 'https://yqdp-manager689125.gakuen.fun/api',
+	},
 	"db":{
 		"host":"54.213.203.214",
 		"port":3306,
