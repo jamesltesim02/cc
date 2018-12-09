@@ -95,7 +95,7 @@ class CommonProvider(ProviderInterface):
             elif result.has_key('message') and result['message'] != '':
                 result['data'] = []
                 print result
-                break
+                self.__login__()
             else:
                 self.__login__()
             i+=1

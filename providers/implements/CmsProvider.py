@@ -75,7 +75,7 @@ class CmsProvider(ProviderInterface):
                 }
         """
 
-        return cms.acceptBuyin(self.apiUsername,
+        return cmsapi.acceptBuyin(self.apiUsername,
             self.apiPwd,
             self.clubId,
             params['uuid'],
@@ -96,7 +96,7 @@ class CmsProvider(ProviderInterface):
                 }
         """
 
-        return cms.denyBuyin(self.apiUsername,
+        return cmsapi.denyBuyin(self.apiUsername,
             self.apiPwd,
             self.clubId,
             params['uuid'],
@@ -123,7 +123,7 @@ class CmsProvider(ProviderInterface):
             待定
         """
 
-        return cms.getHistoryGameList(self.apiUsername,
+        return cmsapi.getHistoryGameList(self.apiUsername,
             self.apiPwd,
             self.clubId,
             params['starttime'],
