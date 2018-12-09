@@ -2,3 +2,5 @@
 .DS_Store
 /providers/implements/temp/*
 /providers/task/temp/*
+
+temp
