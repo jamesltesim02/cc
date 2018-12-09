@@ -12,4 +12,4 @@ t.start()
 # 代理商自动结算任务, 每10秒执行一次
 t1 = Settlement(10)
 t1.setApi(config)
-t1.start()
+# t1.start()

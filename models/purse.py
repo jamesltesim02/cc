@@ -167,6 +167,7 @@ def syncBuyin(conn, purseInfo, buyin, delta):
     sql = "select apply_time from onethink_auto_api_cash_log where settle_game_info=%s"
     cursor.execute(sql, (identify))
     rel = cursor.fetchone()
+    print rel
     if rel != None and int(now)-int(rel['apply_time']) <= 24*60*60:
       cursor.close()
       return

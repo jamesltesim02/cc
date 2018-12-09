@@ -5,6 +5,7 @@ import json
 from models import conn, api
 import traceback
 from providers.ProviderInterface import ProviderInterface
+from pokercms import cmsapi
 
 class CmsProvider(ProviderInterface):
     """
@@ -18,12 +19,11 @@ class CmsProvider(ProviderInterface):
         """
         初始化
         """
-
         self.conn = conn(dbconf)
-        apiUser = api.getLoginInfo(self.conn, conf['seviceCode'])
+        apiUser = api.getLoginInfo(self.conn, conf['serviceCode'])
         self.apiUsername = apiUser['username']
         self.apiPwd = apiUser['pw']
-        self.apiBack = apiuser['back'] #特殊战局
+        self.apiBack = apiUser['back'] #特殊战局
         self.clubId = '21647880'
         self.conf = conf
         self.conn.close()
@@ -58,7 +58,7 @@ class CmsProvider(ProviderInterface):
                     }
                 ]
         """
-        return cms.getBuyinList(self.apiUsername, self.apiPwd, self.clubId)
+        return cmsapi.getBuyinList(self.apiUsername, self.apiPwd, self.clubId)
 
     def acceptBuyin(self, params):
         """

@@ -16,7 +16,7 @@ config = {
 	    'description': '通用提供商',
 	    'module': 'providers.implements.CmsProvider',
 	    'className': 'CmsProvider',
-	    'serviceCode': 4,
+	    'serviceCode': 6,
 	    'apiUrl': 'http://cms.pokermanager.club',
 	},
 	"db":{
