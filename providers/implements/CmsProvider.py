@@ -33,30 +33,7 @@ class CmsProvider(ProviderInterface):
         获取待审批提案列表
 
         Returns:
-            buyinList 提案列表
-                [
-                    {
-                        "status": 0,   状态(等待处理 已处理)
-                        "acc_id": 14632, 玩家编号
-                        "agent_balance": 119916, 代理余额(不需要理会)
-                        "pccname": "\u6d9bs", "total_buyin": 38600, 德扑暱称 
-                        "room_uuid": 31944804,  房间编号
-                        "club_name": "\ud83c\udf0a\u9ed1\u6843\u4ff1\u4e50\u90e8",  俱乐部名称
-                        "room_name": "248\u266668\u965025",  房间名称(牌局名)
-                        "stack": 800,    
-                        "amounts": 800, 要求买入金额
-                        "firstagent_balance": 119916, 总代理余额(不需要理会)
-                        "acc_ps": null,  会员注解(不需要理会)
-                        "pccid": "2639477333", 会员德扑ID
-                        "rake_amounts": 800,   加权后的买入金额(不需要理会)
-                        "suggest": 0, 建议(可买入 不可买入)(不需要理会)
-                        "balance": 50524, 余额 (不需要理会)
-                        "user_uuid": 1088802, (不需要理会)
-                        "firstagent_ps": "",  (不需要理会)
-                        "total_result": null, (不需要理会)
-                        "operat": 1           (不需要理会)
-                    }
-                ]
+            {u'iErrCode': 0, u'result': []}
         """
         return cmsapi.getBuyinList(self.apiUsername, self.apiPwd, self.clubId)
 
@@ -123,8 +100,13 @@ class CmsProvider(ProviderInterface):
             待定
         """
 
-        return cmsapi.getHistoryGameList(self.apiUsername,
+        rel = cmsapi.getHistoryGameList(self.apiUsername,
             self.apiPwd,
             self.clubId,
             params['starttime'],
             params['endtime'])
+
+        for key, item in rel['result']['list']:
+            # get detail
+            detail = cmsapi.getHistoryGameDetail(self.apiUsername, self.apiPwd, self.clubId, item['roomid'])
+            rel['result']['list'][key]['detail'] = detail
