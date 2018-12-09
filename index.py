@@ -5,9 +5,9 @@ from task.Settlement import Settlement
 from config import config
 
 # 代理商自动审批任务, 每5秒执行一次
-t = BuyinCheckin(5)
-t.setApi(config)
-t.start()
+# t = BuyinCheckin(5)
+# t.setApi(config)
+# t.start()
 
 # 代理商自动结算任务, 每10秒执行一次
 t1 = Settlement(10)

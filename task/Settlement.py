@@ -30,6 +30,7 @@ class Settlement(Task):
       "end_time_end": end,
       "query_index": index
     }
+    print(('query param:', params))
     data = self.api.queryUserBoard(params)
 
     if len(data) >= 30:
@@ -71,10 +72,15 @@ class Settlement(Task):
         0
       )
 
-      print('共抓取到%s条记录' % len(dataList))
+      print(dataList)
 
-      for record in dataList:
-        self.settleRecord(record)
+      if dataList:
+        print(('fetch:', len(dataList)))
+
+        for record in dataList:
+          self.settleRecord(record)
+      else:
+        print(('no records'))
 
       tempfile = open(self.tempFile, 'w+')
       tempfile.write(json.dumps({ 'lastTime': nowStr }))
@@ -87,6 +93,9 @@ class Settlement(Task):
     return str(time.mktime(t.timetuple()))
 
   def settleRecord(self, record):
+    if record['pccid'] != '2525717358':
+      print('user is not 2525717358')
+      return
     currentTime = str(time.time())
     gameEndTime = self.getCustTimestamp(record['end_time'])
 
@@ -104,7 +113,7 @@ class Settlement(Task):
     # 判断是否查无此人
     memberResult = purse.getPurseInfoByGameId(self.conn, record['pccid'])
     if not memberResult:
-      print('查无此人')
+      print(('no user'))
       gameEndLog['action'] = 'no UID'
       purse.addSettleFailLog(self.conn, gameEndLog)
       return
@@ -125,12 +134,12 @@ class Settlement(Task):
     # 查询结算表中是否已有结算记录.如果已经存在,则抛弃
     countResult = purse.getSettleRecord(self.conn, settleGameInfo)
     if countResult['settle_count'] > 0:
-      print('已被结算')
+      print(('already settlemented'))
       return
 
     # 查询游戏期间该用户的所有带入金额是否足够与代理接口一致,不足则不结算
     joinToken = base64.b64encode(('%s_%s' % (record['club_name'], record['room_name'])).encode('utf-8'))
-    print('带入token: %s' % joinToken)
+    print(('join token is:', joinToken))
 
     beginTime = self.getCustTimestamp(record['end_time'], minutes = -720)
     endTime = self.getCustTimestamp(record['end_time'], minutes = 120)
@@ -142,14 +151,14 @@ class Settlement(Task):
       joinToken
     )
 
-    print(('带入总金额:',buyInAmountResult))
+    print(('total buy in:',buyInAmountResult))
 
     if buyInAmountResult['totalAmount'] < record['buy_in']:
       if not buyInAmountResult['totalAmount'] or buyInAmountResult['totalAmount'] == 0:
-        print('无带入提案')
+        print(('no apply'))
         gameEndLog['action'] = 'no Buyin'
       else:
-        print('带入金额不匹配, local: %s, remote %s' % (buyInAmountResult['totalAmount'], record['buy_in']))
+        print(('amount not match, local:', buyInAmountResult['totalAmount'], ', remote', record['buy_in']))
         gameEndLog['action'] = 'no enough, local buyin: %s, remote buyin: %s' % (buyInAmountResult['totalAmount'], record['buy_in'])
     
       purse.addSettleFailLog(self.conn, gameEndLog)
