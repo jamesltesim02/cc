@@ -24,7 +24,7 @@ class CmsProvider(ProviderInterface):
         self.apiUsername = apiUser['username']
         self.apiPwd = apiUser['pw']
         self.apiBack = apiUser['back'] #特殊战局
-        self.clubId = '21647880'
+        self.clubId = '588000'
         self.conf = conf
         self.conn.close()
 

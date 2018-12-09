@@ -76,7 +76,7 @@ class CommonProvider(ProviderInterface):
                         print(e)
                     if not self.authCookie:
                         self.__login__()
-
+        print url, params
         i = 0
         while i < 3:     
             if method == 'get':
@@ -174,7 +174,7 @@ class CommonProvider(ProviderInterface):
         """
 
         return self.__invoke__(
-            '%s/control_cms/accept_buy' % self.conf['apiUrl'],
+            '%s/control_cms/deny_buy' % self.conf['apiUrl'],
             params = params
         )
 
