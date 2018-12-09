@@ -114,28 +114,48 @@ def updatePurse(conn, info, delta):
 
 def addSettleFailLog(conn, data):
   cursor = conn.cursor()
-  sql = """
-          insert into onethink_api_import_game_end(
-            game_uid,
-            game_id,
-            board_id,
-            end_game_time,
-            apply_time,
-            action
-          )
-          values(%s, %s,  %s, %s, %s, %s)
-        """
-  cursor.execute(
-    sql,
-    (
-      data['game_uid'],
-      data['game_id'],
-      data['board_id'],
-      data['end_game_time'],
-      data['apply_time'],
-      data['action']
+  try:
+    querySQL = """
+              select count(1) log_count
+              from onethink_api_import_game_end
+              where settle_game_info = %s
+              """
+    cursor.execute(querySQL, data['settle_game_info'])
+    result = cursor.fetchone()
+    if result['log_count'] > 0:
+      print('already loged')
+      return
+
+    sql = """
+            insert into onethink_api_import_game_end(
+              game_uid,
+              game_id,
+              board_id,
+              end_game_time,
+              apply_time,
+              action,
+              settle_game_info
+            )
+            values(%s, %s,  %s, %s, %s, %s, %s)
+          """
+    cursor.execute(
+      sql,
+      (
+        data['game_uid'],
+        data['game_id'],
+        data['board_id'],
+        data['end_game_time'],
+        data['apply_time'],
+        data['action'],
+        data['settle_game_info']
+      )
     )
-  )
+    conn.commit()
+  except Exception as e:
+    traceback.print_exc()
+    conn.rollback()
+  finally:
+    cursor.close()
 
 #同步宝芝林，德扑圈结算信息信息
 def syncSettlement(conn, gameId, roomName, delta):   

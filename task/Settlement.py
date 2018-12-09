@@ -99,16 +99,28 @@ class Settlement(Task):
     currentTime = str(time.time())
     gameEndTime = self.getCustTimestamp(record['end_time'])
 
+    print(('开始处理:', record))
+    
+    # 结算判断标志 pccid_roomName_clubName_buyIn_bringOut_endTime
+    settleGameInfo = base64.b64encode(
+      '%s_%s_%s_%s_%s_%s'  % (
+        record['pccid'],
+        record['room_name'],
+        record['club_name'],
+        record['buy_in'],
+        record['bring_out'],
+        record['end_time']
+      )
+    )
+
     gameEndLog = {
       'game_uid': record['pccid'],
       'game_id': record['room_name'],
       'board_id': record['board_id'],
       'end_game_time': gameEndTime,
-      'apply_time': currentTime
+      'apply_time': currentTime,
+      'settle_game_info': settleGameInfo,
     }
-
-
-    print(('开始处理:', record))
 
     # 判断是否查无此人
     memberResult = purse.getPurseInfoByGameId(self.conn, record['pccid'])
@@ -118,18 +130,6 @@ class Settlement(Task):
       purse.addSettleFailLog(self.conn, gameEndLog)
       return
 
-    # 结算判断的标志 pccid_table_number_boardId_roomId_clubUuid_buyIn_bringOut
-    settleGameInfo = base64.b64encode(
-      '%s_%s_%s_%s_%s_%s_%s'  % (
-        record['pccid'],
-        record['table_number'],
-        record['board_id'],
-        record['room_id'],
-        record['club_uuid'],
-        record['buy_in'],
-        record['bring_out'],
-      )
-    )
 
     # 查询结算表中是否已有结算记录.如果已经存在,则抛弃
     countResult = purse.getSettleRecord(self.conn, settleGameInfo)

@@ -10,8 +10,11 @@
         CHANGE COLUMN `game_id` `game_id` VARCHAR(255) NULL DEFAULT '0' COMMENT 'API遊戲局ID' AFTER `game_uid`,  
         ADD COLUMN `board_id` VARCHAR(255) NULL DEFAULT '0' COMMENT 'api游戏局id' AFTER `game_id`;  
     ALTER TABLE onethink_join_game_log ADD club_room_name VARCHAR(255) NULL DEFAULT '' AFTER room_name;
-    ALTER TABLE `onethink_api_import_game_end` CHANGE `game_id` `game_id` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT '0' COMMENT 'API遊戲局ID';
+    ALTER TABLE `onethink_api_import_game_end` CHANGE `game_id` `game_id` VARCHAR(255) 
+        CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT '0' COMMENT 'API遊戲局ID';
     ALTER TABLE `onethink_join_game_log` ADD `chang_flag` TINYINT(1) NULL DEFAULT '0' AFTER `club_room_name`;
+    ALTER TABLE `onethink_api_import_game_end`
+	    ADD COLUMN `settle_game_info` VARCHAR(255) NULL COMMENT '汇入的战局唯一标志' AFTER `action`;
 
 ### 1.2 依赖模块  
     pip install PyMySQL  

@@ -1,6 +1,5 @@
 *.pyc
 .DS_Store
-/providers/implements/temp/*
-/providers/task/temp/*
 
-temp
+/providers/implements/temp/*
+/task/temp/*
