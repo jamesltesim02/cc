@@ -13,7 +13,7 @@ class BuyinCheckin(Task):
     def callback(self):
         self.conn = conn(self.config['db'])
         # 判断是否开启
-        statusResult = api.getLoginInfo(self.conn, self.conf['serviceCode'])
+        statusResult = api.getLoginInfo(self.conn, self.config['bzl-provider']['serviceCode'])
         # 关闭同步功能
         if not statusResult or statusResult['status'] == 0:
             return
