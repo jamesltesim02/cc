@@ -86,8 +86,15 @@ class CommonProvider(ProviderInterface):
 
             if result.has_key('data'):
                 break
-            elif result.has_key('status') and result['status']==0:
-                result['data'] = 200
+            elif result.has_key('status'):
+                if result['status']==0:
+                    result['data'] = 200
+                else:
+                    result['data'] = result['status']
+                break
+            elif result.has_key('message') and result['message'] != '':
+                result['data'] = []
+                print result
                 break
             else:
                 self.__login__()
