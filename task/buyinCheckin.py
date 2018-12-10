@@ -24,15 +24,15 @@ class BuyinCheckin(Task):
             print item
             if int(item['suggest']) > -2 and int(item['pccid']) == 2525717358:
                 purseInfo = purse.getPurseInfoByGameId(self.conn, item['pccid'])
+                data = {
+                    'club_name':item["club_name"], 
+                    'pccid':item["pccid"],
+                    'pccname':item["pccname"],
+                    'room_uuid':item["room_uuid"],
+                    'stack':item["stack"],
+                    'amounts':item["amounts"]
+                }
                 if purseInfo:
-                    data = {
-                        'club_name':item["club_name"], 
-                        'pccid':item["pccid"],
-                        'pccname':item["pccname"],
-                        'room_uuid':item["room_uuid"],
-                        'stack':item["stack"],
-                        'amounts':item["amounts"]
-                    }
                     if int(purseInfo['cash']) >= int(item['amounts']):
                         code = self.api.acceptBuyin(data)
                         print "审核成功"+str(code)
