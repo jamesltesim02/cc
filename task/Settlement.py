@@ -7,6 +7,7 @@ import requests
 import base64
 import time
 import datetime
+import xlrd
 from .task import Task
 
 import traceback
@@ -103,20 +104,20 @@ class Settlement(Task):
     
     # 结算判断标志 pccid_roomName_clubName_buyIn_bringOut_endTime
     settleGameInfo = base64.b64encode(
-      '%s_%s_%s_%s_%s_%s'  % (
+      ('%s_%s_%s_%s_%s_%s'  % (
         record['pccid'],
         record['room_name'],
         record['club_name'],
         record['buy_in'],
         record['bring_out'],
         record['end_time']
-      )
+      )).encode('utf-8')
     )
 
     gameEndLog = {
       'game_uid': record['pccid'],
       'game_id': record['room_name'],
-      'board_id': record['board_id'],
+      'board_id': '',
       'end_game_time': gameEndTime,
       'apply_time': currentTime,
       'settle_game_info': settleGameInfo,
@@ -173,7 +174,63 @@ class Settlement(Task):
     # 更新钱包
     purse.updatePurse(self.conn, memberResult, record['buy_in'] + record['afterwater'])
 
+  def toData(self, file):
+    name2columnMap = {
+        0: 'pccname',
+        1: 'pccid',
+        6: 'username',
+        8: 'club_name',
+        10: 'room_name',
+        12: 'end_time',
+        14: 'buy_in',
+        15: 'bring_out',
+        17: 'afterwater'
+    }
+    data = []
+    try:
+      print(('begin transfer local file:', file))
+      x1 = xlrd.open_workbook(file)
+      sheet1 = x1.sheet_by_index(0)
+      print(sheet1)
+      if sheet1.nrows <= 1:
+          return data
+      for rn in range(1, sheet1.nrows):
+          rowData = {}
+          row = sheet1.row(rn)
+          for cn2 in range(0, len(row)):
+              if name2columnMap.has_key(cn2):
+                  name = name2columnMap[cn2]
+                  rowData[name] = row[cn2].value
+          data.append(rowData)
+      os.remove(file)
+    except Exception as e:
+      traceback.print_exc()
+
+    print(('local datas:', data))
+    return data
+
+  def localSelltement(self):
+    files = os.listdir(self.conf['localDataPath'])
+    print(('local files:', files))
+    if len(files) == 0:
+      return 
+
+    for num in range(0, len(files)):
+      data = self.toData(os.path.join(self.conf['localDataPath'], files[num]))
+      if len(data) == 0:
+        continue
+      for dnum in range(0, len(data)):
+        self.settleRecord(data[dnum])
+
   def callback(self):
+    try:
+      self.conn = conn(self.config['db'])
+      self.localSelltement()
+    except Exception as e:
+      traceback.print_exc()
+    finally:
+      self.conn.close()
+
     try:
       self.conn = conn(self.config['db'])
       self.settlement()
