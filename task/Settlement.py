@@ -187,45 +187,56 @@ class Settlement(Task):
         17: 'afterwater'
     }
     data = []
-    try:
-      print(('begin transfer local file:', file))
-      x1 = xlrd.open_workbook(file)
-      sheet1 = x1.sheet_by_index(0)
-      print(sheet1)
-      if sheet1.nrows <= 1:
-          return data
-      for rn in range(1, sheet1.nrows):
-          rowData = {}
-          row = sheet1.row(rn)
-          for cn2 in range(0, len(row)):
-              if name2columnMap.has_key(cn2):
-                  name = name2columnMap[cn2]
-                  rowData[name] = row[cn2].value
-          data.append(rowData)
-      os.remove(file)
-    except Exception as e:
-      traceback.print_exc()
+    print(('begin transfer local file:', file))
+    x1 = xlrd.open_workbook(file)
+    sheet1 = x1.sheet_by_index(0)
+    print(sheet1)
+    if sheet1.nrows <= 1:
+        return data
+    for rn in range(1, sheet1.nrows):
+        rowData = {}
+        row = sheet1.row(rn)
+        for cn2 in range(0, len(row)):
+            if name2columnMap.has_key(cn2):
+                name = name2columnMap[cn2]
+                rowData[name] = row[cn2].value
+        data.append(rowData)
 
     print(('local datas:', data))
     return data
 
-  def localSelltement(self):
+  def localSettlement(self):
+    if not os.path.exists(self.conf['localDataPath']):
+      return
     files = os.listdir(self.conf['localDataPath'])
     print(('local files:', files))
     if len(files) == 0:
       return 
 
     for num in range(0, len(files)):
-      data = self.toData(os.path.join(self.conf['localDataPath'], files[num]))
-      if len(data) == 0:
+      if files[num] == 'failed':
         continue
-      for dnum in range(0, len(data)):
-        self.settleRecord(data[dnum])
+      try:
+        rfile = os.path.join(self.conf['localDataPath'], files[num])
+        data = self.toData(rfile)
+        if len(data) == 0:
+          continue
+        for dnum in range(0, len(data)):
+          self.settleRecord(data[dnum])
+        os.remove(rfile)
+      except Exception as e:
+        print(('local settlement fail:', rfile))
+        faileddir = os.path.join(self.conf['localDataPath'], 'failed')
+        if not os.path.exists(faileddir):
+          os.makedirs(faileddir)
+        os.rename(rfile, os.path.join(faileddir, files[num]))
+        traceback.print_exc()
+
 
   def callback(self):
     try:
       self.conn = conn(self.config['db'])
-      self.localSelltement()
+      self.localSettlement()
     except Exception as e:
       traceback.print_exc()
     finally:
