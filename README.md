@@ -47,9 +47,9 @@
     error: './logs/error.log',  
 ### 2.3. 日志配置管理  
     在命令行运行命令对日志插件参数进行配置  
-    * 设置每个日志文件不超过2k  
+    * 设置每个日志文件不超过1M  
     pm2 set pm2-logrotate:max_size 1M  
-    * 设置按时间生成日志文件 (秒 分 时 天 月 [星期])  
+    * 设置按时间生成日志文件 (秒 分 时 天 月 [星期])(* 目前为按天分割)  
     pm2 set pm2-logrotate:rotateInterval '0 0 * * *'  
 
 # 3. 启动及进程管理  
