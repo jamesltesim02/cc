@@ -48,14 +48,14 @@ class BuyinCheckin(Task):
                             buyin.addBuyinLog(self.conn, purseInfo, item, 'deny')
                             self.conn.commit()
 
-                else:
-                    code = self.api.denyBuyin(data)
-                    if code == 200:
-                        purseInfo = {}
-                        purseInfo['frontend_user_id'] = 'no purse'
-                        purseInfo['frontend_user_auth'] = 'no purse'
-                        purseInfo['game_vid'] = item["pccid"]
-                        buyin.addBuyinLog(self.conn, purseInfo, item, 'deny')
-                        self.conn.commit()
+                # else:
+                #     code = self.api.denyBuyin(data)
+                #     if code == 200:
+                #         purseInfo = {}
+                #         purseInfo['frontend_user_id'] = 'no purse'
+                #         purseInfo['frontend_user_auth'] = 'no purse'
+                #         purseInfo['game_vid'] = item["pccid"]
+                #         buyin.addBuyinLog(self.conn, purseInfo, item, 'deny')
+                #         self.conn.commit()
         self.conn.close()
         

@@ -55,7 +55,7 @@
 # 3. 启动及进程管理  
 ### 3.1. 首次启动程序  
     pm2 start  
-    * 在项目根目录运行,pm2会自动寻找ecosystem.config.js文件并执行
+    * 在项目根目录运行,pm2会自动寻找ecosystem.config.js文件并执行  
 ### 3.2. 停止进程  
     pm2 stop dzpk-auto  
     * dzpk-auto 为配置的进程名  

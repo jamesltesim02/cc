@@ -200,6 +200,11 @@ class Settlement(Task):
             if name2columnMap.has_key(cn2):
                 name = name2columnMap[cn2]
                 rowData[name] = row[cn2].value
+
+        rowData['buy_in'] = int(float(rowData['buy_in']))
+        rowData['bring_out'] = int(float(rowData['bring_out']))
+        rowData['afterwater'] = int(float(rowData['afterwater']))
+
         data.append(rowData)
 
     print(('local datas:', data))
