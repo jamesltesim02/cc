@@ -19,6 +19,7 @@ TEMP_DIR = os.path.dirname(os.path.realpath(__file__)) + '/temp'
 class Settlement(Task):
   
   conn = None
+  providerName = 'bzl-provider'
 
   def setApi(self, conf):
     Task.setApi(self, conf)

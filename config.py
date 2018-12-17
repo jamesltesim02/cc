@@ -10,7 +10,7 @@ config = {
 	    'className': 'CommonProvider',
 	    'serviceCode': 4,
 	    'apiUrl': 'https://yqdp-manager689125.gakuen.fun/api',
-		'localDataPath': 'C:/workspace/cc/task/upload/'
+		'localDataPath': '/Volumes/rey/work/PHP/Holdem/Uploads/settlement/'
 	},
 	'cms-provider':{
 		'name': 'cms-provider',

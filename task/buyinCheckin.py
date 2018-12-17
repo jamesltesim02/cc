@@ -9,6 +9,7 @@ import json
 
 class BuyinCheckin(Task):
 
+    providerName = 'bzl-provider'  
     conn = None
     def callback(self):
         self.conn = conn(self.config['db'])

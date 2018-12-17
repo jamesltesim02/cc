@@ -15,7 +15,7 @@ class Task(object):
 		self.api = None
 
 	def setApi(self, conf):
-		self.api = ProviderFactory.createProvider(conf['bzl-provider'], conf['db'])
+		self.api = ProviderFactory.createProvider(conf[self.providerName], conf['db'])
 		self.config = conf
 		return self
 
