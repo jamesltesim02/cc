@@ -45,19 +45,35 @@ class CommonProvider(ProviderInterface):
         
         loginAuth = base64.b64encode('%s:%s' % (statusResult['username'], statusResult['pw']))
 
-        loginResponse =  requests.post(
-            '%s/login_admin' % self.conf['apiUrl'],
-            data = { 'authorization': loginAuth }
-        )
-
-        loginResult = loginResponse.json()
-
-        if 'name' in loginResult and loginResult['name'] == statusResult['username']:
-            self.authCookie = loginResponse.cookies.get_dict()
-            tempfile = open(self.tempFile, 'w+')
-            tempfile.write(json.dumps(self.authCookie))
-        else:
-            print(loginResult)
+        try:
+            loginResponse =  requests.post(
+                '%s/login_admin' % self.conf['apiUrl'],
+                data = { 'authorization': loginAuth }
+            )
+            try:
+                self.conn = conn(self.dbconf)
+                api.updateChingApiStatus(self.conn, 'login_status', 'OK')
+            except Exception as e:
+                traceback.print_exc()
+            finally:
+                self.conn.close()
+            loginResult = loginResponse.json()
+            
+            if 'name' in loginResult and loginResult['name'] == statusResult['username']:
+                self.authCookie = loginResponse.cookies.get_dict()
+                tempfile = open(self.tempFile, 'w+')
+                tempfile.write(json.dumps(self.authCookie))
+                return
+            else:
+                print(loginResult)
+        except Exception as e:
+            try:
+                self.conn = conn(self.dbconf)
+                api.updateChingApiStatus(self.conn, 'login_status', 'FAILED')
+            except Exception as e:
+                traceback.print_exc()
+            finally:
+                self.conn.close()
 
     def __invoke__(self, url, method = 'post', params = {}, needAuth = True):
         """
@@ -76,29 +92,54 @@ class CommonProvider(ProviderInterface):
                         print(e)
                     if not self.authCookie:
                         self.__login__()
-        print url, params
+        reqUrl = '%s/%s' % (self.conf['apiUrl'], url)
+        print reqUrl, params
         i = 0
-        while i < 3:     
-            if method == 'get':
-                result = requests.get(url, params = params, cookies = self.authCookie).json()
-            else:
-                result = requests.post(url, data = params, cookies = self.authCookie).json()
-
-            if result.has_key('data'):
-                break
-            elif result.has_key('status'):
-                if result['status']==0:
-                    result['data'] = 200
+        while i < 3:
+            try:
+                
+                if method == 'get':
+                    result = requests.get(reqUrl, params = params, cookies = self.authCookie).json()
                 else:
-                    result['data'] = result['status']
-                break
-            elif result.has_key('message') and result['message'] != '':
-                result['data'] = []
-                print result
-                self.__login__()
-            else:
-                self.__login__()
-            i+=1
+                    result = requests.post(reqUrl, data = params, cookies = self.authCookie).json()
+
+                try:
+                    self.conn = conn(self.dbconf)
+                    if url == 'club_buyin':
+                        api.updateChingApiStatus(self.conn, 'get_buyin_status', 'OK')
+                    elif url == 'query_user_board':
+                        api.updateChingApiStatus(self.conn, 'get_game_status', 'OK')
+                except Exception as e:
+                    traceback.print_exc()
+                finally:
+                    self.conn.close()
+
+                if result.has_key('data'):
+                    break
+                elif result.has_key('status'):
+                    if result['status']==0:
+                        result['data'] = 200
+                    else:
+                        result['data'] = result['status']
+                    break
+                elif result.has_key('message') and result['message'] != '':
+                    result['data'] = []
+                    print result
+                    self.__login__()
+                else:
+                    self.__login__()
+                i+=1
+            except:
+                try:
+                    self.conn = conn(self.dbconf)
+                    if url == 'club_buyin':
+                        api.updateChingApiStatus(self.conn, 'get_buyin_status', 'FAILED')
+                    elif url == 'query_user_board':
+                        api.updateChingApiStatus(self.conn, 'get_game_status', 'FAILED')
+                except Exception as e:
+                    traceback.print_exc()
+                finally:
+                    self.conn.close()
 
         return result['data']
 
@@ -134,7 +175,7 @@ class CommonProvider(ProviderInterface):
         """
 
         return self.__invoke__(
-            '%s/club_buyin' % self.conf['apiUrl'],
+            'club_buyin' ,
             method = 'get'
         )
 
@@ -154,7 +195,7 @@ class CommonProvider(ProviderInterface):
         """
 
         return self.__invoke__(
-            '%s/control_cms/accept_buy' % self.conf['apiUrl'],
+            'control_cms/accept_buy',
             params = params
         )
 
@@ -174,7 +215,7 @@ class CommonProvider(ProviderInterface):
         """
 
         return self.__invoke__(
-            '%s/control_cms/deny_buy' % self.conf['apiUrl'],
+            'control_cms/deny_buy',
             params = params
         )
 
@@ -200,6 +241,6 @@ class CommonProvider(ProviderInterface):
         """
 
         return self.__invoke__(
-            '%s/query_user_board' % self.conf['apiUrl'],
+            'query_user_board',
             params = params
         )
