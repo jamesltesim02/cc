@@ -1,9 +1,15 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
-# from task.buyinCheckin import BuyinCheckin
-# from task.Settlement import Settlement
-# from config import config
-# from providers import ProviderFactory
+from task.buyinCheckin import BuyinCheckin
+from task.CmsBuyinCheckin import CmsBuyinCheckin
+from task.Settlement import Settlement
+from config import config
+from providers import ProviderFactory
+import requests
+
+c = CmsBuyinCheckin(5)
+c.setApi(config)
+c.callback()
 
 # t = BuyinCheckin(5)
 # t.setApi(config)
@@ -18,11 +24,3 @@
 
 # p = ProviderFactory.createProvider(config['cms-provider'], config['db'])
 # print p.getBuyin()
-
-
-data = {
-    'm': '1'
-}
-
-data['m'] = int(float(data['m']))
-print(data)

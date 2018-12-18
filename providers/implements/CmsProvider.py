@@ -44,11 +44,8 @@ class CmsProvider(ProviderInterface):
         Args:
             params: 通过的提案信息
                 {
-                    club_name 俱乐部名称 string
-                    pccid     俱乐部ID string
-                    pccname   玩家德扑暱称 string
-                    room_uuid 房间编号 string
-                    amounts   买入金额 int 由/api/club_buyin
+                    uuid 用户id string
+                    gameRoomId     房间id string
                 }
         """
 
@@ -65,11 +62,8 @@ class CmsProvider(ProviderInterface):
         Args:
             params: 拒绝的提案信息
                 {
-                    club_name 俱乐部名称 string
-                    pccid     俱乐部ID string
-                    pccname   玩家德扑暱称 string
-                    room_uuid 房间编号 string
-                    amounts   买入金额 int 由/api/club_buyin
+                    uuid 用户id string
+                    gameRoomId     房间id string
                 }
         """
 
