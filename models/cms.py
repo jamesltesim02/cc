@@ -89,6 +89,21 @@ def syncCmsBuyin(conn, purseInfo, buyin, delta):
 	
 	cursor = conn.cursor()
 	try:
+		now = time.time()
+	    buyinKeys = buyin.keys()
+	    buyinKeys.sort()
+	    identify = ''
+	    for key in buyinKeys:
+	    	identify += '%s:%s' %(key, buyin[key])
+	    identify = hashlib.md5(identify.encode('utf-8')).hexdigest()
+	    sql = "select apply_time from onethink_cms_auto_cash_log where settle_game_info=%s order by apply_time desc"
+	    cursor.execute(sql, (identify))
+	    rel = cursor.fetchone()
+	    print rel
+	    if rel != None and int(now)-int(rel['apply_time']) <= 24*60*60:
+			cursor.close()
+			return
+
 		clubName = "Not_recorded"
 		clubRoomName = base64.b64encode((buyin['club_name']+'_'+buyin['room_name']).encode('utf-8'))
 		sql = "INSERT INTO `onethink_cms_buyin_log` ( `userid`, `username`, `game_vid`, `club_id`,"\
@@ -107,7 +122,7 @@ def syncCmsBuyin(conn, purseInfo, buyin, delta):
 			buyin['room_name'],
 			buyin['room_id'],
 			clubRoomName))
-		
+
 		timestamp = str(time.time())
 		cash = int(info['cash'])+int(delta)
 		sql = "update onethink_player_purse set cash=%s where id=%s"
@@ -129,19 +144,7 @@ def syncCmsBuyin(conn, purseInfo, buyin, delta):
 		      """
 
 		print(sql)
-		print((
-		    info['frontend_user_auth'],
-		    info['cash'],
-		    info['diamond'],
-		    info['point'],
-		    str(cash),
-		    info['diamond'],
-		    info['point'],
-		    timestamp,
-		    timestamp,
-		    info['game_id'],
-		    info['settle_game_info'],
-		  ))
+		print buyin, identify
 		cursor.execute(
 		  sql,
 		  (
@@ -155,7 +158,7 @@ def syncCmsBuyin(conn, purseInfo, buyin, delta):
 		    timestamp,
 		    timestamp,
 		    info['game_id'],
-		    info['settle_game_info'],
+		    identify,
 		  )
 		)
 		cursor.close()

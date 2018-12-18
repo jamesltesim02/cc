@@ -36,7 +36,7 @@ class CmsBuyinCheckin(Task):
                         print "审核成功", resp
                         if resp['iErrCode'] == 0:
                             try:
-                                purse.syncBuyin(self.conn, purseInfo, item, -int(item['amounts']))
+                                cms.syncCmsBuyin(self.conn, purseInfo, item, -int(item['amounts']))
                             except Exception as e:
                                 print e
                     else:               
@@ -45,14 +45,5 @@ class CmsBuyinCheckin(Task):
                             cms.addBuyinLog(self.conn, purseInfo, item, 'deny')
                             self.conn.commit()
 
-                # else:
-                #     code = self.api.denyBuyin(data)
-                #     if code == 200:
-                #         purseInfo = {}
-                #         purseInfo['frontend_user_id'] = 'no purse'
-                #         purseInfo['frontend_user_auth'] = 'no purse'
-                #         purseInfo['game_vid'] = item["pccid"]
-                #         buyin.addBuyinLog(self.conn, purseInfo, item, 'deny')
-                #         self.conn.commit()
         self.conn.close()
         
