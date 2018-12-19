@@ -8,7 +8,7 @@ import base64
 import time
 import datetime
 from .task import Task
-from models import conn, api, cmsmodel, purse
+from models import conn, api, cms, purse
 
 TEMP_DIR = os.path.dirname(os.path.realpath(__file__)) + '/temp'
 
@@ -30,7 +30,7 @@ class CmsSettlement(Task):
 
   # 获取抽水额度
   def getRake(self, roomname):
-    specials = cmsmodel.getSpecialRake(
+    specials = cms.getSpecialRake(
       self.conn,
       self.conf['cloubId']
     )
@@ -80,7 +80,7 @@ class CmsSettlement(Task):
       print('no user')
       # 记录用户不存在的日志
       gameEndLog['action'] = 'no UID'
-      cmsmodel.addSettleFailLog(self.conn, gameEndLog)
+      cms.addSettleFailLog(self.conn, gameEndLog)
       return
 
     # 查询结算表中是否已有结算记录.如果已经存在,则抛弃
@@ -94,7 +94,7 @@ class CmsSettlement(Task):
     
 
     # 查询是否有足够的转入金额
-    buyinResult = cmsmodel.getTotoalCmsBuyinAmount(
+    buyinResult = cms.getTotoalCmsBuyinAmount(
       self.conn,
       userRecord['showId'],
       gameInfo['roomid'],
@@ -108,7 +108,7 @@ class CmsSettlement(Task):
       if not buyinResult['total_amount'] or buyinResult['total_amount'] == 0:
         print('no apply')
         gameEndLog['action'] = 'no Buyin'
-        cmsmodel.addSettleFailLog(self.conn, gameEndLog)
+        cms.addSettleFailLog(self.conn, gameEndLog)
       else:
         print((
           'amount not match, local:', 
@@ -121,7 +121,7 @@ class CmsSettlement(Task):
             userRecord['buyinStack']
           )
         )
-        cmsmodel.addSettleFailLog(self.conn, gameEndLog)
+        cms.addSettleFailLog(self.conn, gameEndLog)
       return
 
     updateBalance = 0
@@ -138,7 +138,7 @@ class CmsSettlement(Task):
 
     # 更新钱包
     memberResult['settle_game_info'] = settleGameInfo
-    purse.updatePurse(
+    cms.updatePurse(
       self.conn,
       memberResult,
       updateBalance
@@ -149,14 +149,14 @@ class CmsSettlement(Task):
     userRecord['username'] = memberResult['username']
     userRecord['afbonus'] = updateBalance
     userRecord['back'] = afterwater
-    cmsmodel.saveGameUserRecord(
+    cms.saveGameUserRecord(
       self.conn,
       userRecord
     )
 
     # 记录结算日志
     gameEndLog['action'] = 'OK'
-    cmsmodel.addSettleFailLog(self.conn, gameEndLog)
+    cms.addSettleFailLog(self.conn, gameEndLog)
 
   # 针对战局进行结算
   def settleGame(self, gameInfo):
@@ -165,7 +165,7 @@ class CmsSettlement(Task):
     """
 
     # 是否已经结算过此战局
-    gameCount = cmsmodel.getCountOfGameinfo(
+    gameCount = cms.getCountOfGameinfo(
       self.conn,
       {
         'roomid': gameInfo['roomid'],
@@ -192,7 +192,7 @@ class CmsSettlement(Task):
       self.settleUserRecord(userRecord, gameInfo)
 
     # 将战局结算记录插入表中
-    cmsmodel.saveGameinfo(
+    cms.saveGameinfo(
       self.conn,
       gameInfo
     )
