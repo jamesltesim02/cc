@@ -9,7 +9,7 @@ def addBuyinLog(conn, purseInfo, buyin, action):
 		clubName = "Not_recorded"
 		clubRoomName = base64.b64encode((buyin['club_name']+'_'+buyin['room_name']).encode('utf-8'))
 		sql = "INSERT INTO `onethink_cms_buyin_log` ( `userid`, `username`, `game_vid`, `club_id`,"\
-		" `join_cash`, `application_time`, `check_time`, `check_user`, `check_status`, `room_name`, `room_id`, `club_room_name`) "\
+		" `join_cash`, `application_time`, `check_time`, `check_user`, `check_status`, `room_name`, `room_id`) "\
 		"VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 		cursor.execute(sql,
 			(purseInfo['frontend_user_id'],
@@ -22,8 +22,7 @@ def addBuyinLog(conn, purseInfo, buyin, action):
 			'Auto_Buyin_Tool_B', 
 			action,
 			buyin['room_name'],
-			buyin['room_id'],
-			clubRoomName))
+			buyin['room_id']))
 
 def updatePurse(conn, info, delta):
 
@@ -105,9 +104,8 @@ def syncCmsBuyin(conn, purseInfo, buyin, delta):
 			return
 
 		clubName = "Not_recorded"
-		clubRoomName = base64.b64encode((buyin['club_name']+'_'+buyin['room_name']).encode('utf-8'))
 		sql = "INSERT INTO `onethink_cms_buyin_log` ( `userid`, `username`, `game_vid`, `club_id`,"\
-		" `join_cash`, `application_time`, `check_time`, `check_user`, `check_status`, `room_name`, `room_id`, `club_room_name`) "\
+		" `join_cash`, `application_time`, `check_time`, `check_user`, `check_status`, `room_name`, `room_id`) "\
 		"VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 		cursor.execute(sql,
 			(purseInfo['frontend_user_id'],
@@ -120,8 +118,7 @@ def syncCmsBuyin(conn, purseInfo, buyin, delta):
 			'Auto_Buyin_Tool_B', 
 			action,
 			buyin['room_name'],
-			buyin['room_id'],
-			clubRoomName))
+			buyin['room_id']))
 
 		timestamp = str(time.time())
 		cash = int(info['cash'])+int(delta)
