@@ -174,10 +174,7 @@ class CommonProvider(ProviderInterface):
                 ]
         """
 
-        return self.__invoke__(
-            'club_buyin' ,
-            method = 'get'
-        )
+        return self.__invoke__('club_buyin', method = 'get')
 
     def acceptBuyin(self, params):
         """
@@ -194,10 +191,7 @@ class CommonProvider(ProviderInterface):
                 }
         """
 
-        return self.__invoke__(
-            'control_cms/accept_buy',
-            params = params
-        )
+        return self.__invoke__('control_cms/accept_buy', params = params)
 
     def denyBuyin(self, params):
         """
@@ -214,10 +208,7 @@ class CommonProvider(ProviderInterface):
                 }
         """
 
-        return self.__invoke__(
-            'control_cms/deny_buy',
-            params = params
-        )
+        return self.__invoke__('control_cms/deny_buy', params = params)
 
     def queryUserBoard(self, params):
         """
@@ -240,7 +231,4 @@ class CommonProvider(ProviderInterface):
             待定
         """
 
-        return self.__invoke__(
-            'query_user_board',
-            params = params
-        )
+        return self.__invoke__('query_user_board', params = params)

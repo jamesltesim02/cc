@@ -3,7 +3,6 @@
 
 import os
 import json
-import requests
 import base64
 import time
 import datetime

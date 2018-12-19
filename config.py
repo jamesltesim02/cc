@@ -18,6 +18,7 @@ config = {
 	    'module': 'providers.implements.CmsProvider',
 	    'className': 'CmsProvider',
 	    'serviceCode': 6,
+		'cloubId': '21647880',
 	    'apiUrl': 'http://cms.pokermanager.club',
 	},
 	"db":{

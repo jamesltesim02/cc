@@ -167,37 +167,6 @@ def syncCmsBuyin(conn, purseInfo, buyin, delta):
 		cursor.close()
 		conn.rollback()
 
-
-def addSettleFailLog(conn, data):
-	cursor = conn.cursor()
-	sql = """
-      insert into onethink_cms_game_end(
-        game_uid,
-        game_name,
-        game_id,
-        board_id,
-        create_game_time,
-        end_game_time,
-        apply_time,
-        action
-      )
-      values(%s, %s,  %s, %s, %s, %s)
-	    """
-	cursor.execute(
-	    sql,
-	    (
-	      data['game_uid'],
-	      data['game_name'],
-	      data['game_id'],
-	      data['board_id'],
-	      data['create_game_time'],
-	      data['end_game_time'],
-	      data['apply_time'],
-	      data['action']
-		)
-	)
-
-
 def getBuyin(conn, gameId, roomName, roomId):
 
 	starttime = (datetime.date.today()-datetime.timedelta(1)).strftime("%s")

@@ -47,7 +47,6 @@ def getTotoalBuyinAmount(conn, pccid, beginTime, endTime, joinToken):
 
     cursor.execute(sql, (beginTime, endTime, pccid, joinToken))
     return cursor.fetchone()
-  return
 
 def getSettleRecord(conn, settleGameInfo):
   with conn.cursor() as cursor:
