@@ -14,7 +14,9 @@
         CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT '0' COMMENT 'API遊戲局ID';  
     ALTER TABLE `onethink_join_game_log` ADD `chang_flag` TINYINT(1) NULL DEFAULT '0' AFTER `club_room_name`;  
     ALTER TABLE `onethink_api_import_game_end`
-	    ADD COLUMN `settle_game_info` VARCHAR(255) NULL COMMENT '汇入的战局唯一标志' AFTER `action`;  
+	    ADD COLUMN `settle_game_info` VARCHAR(255) NULL COMMENT '汇入的战局唯一标志' AFTER `action`;
+
+    ALTER TABLE `onethink_cms_auto_cash_log` ADD `settle_game_info` VARCHAR(255) NULL DEFAULT NULL AFTER `change_time`;
 
 ### 1.2. 依赖环境安装配置  
 #### 1.2.1. python模块  
