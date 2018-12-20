@@ -62,7 +62,7 @@ def updatePurse(conn, info, delta, roomId):
 		    info['point'],
 		    timestamp,
 		    timestamp,
-		    info['game_id'],
+		    roomId,
 		    info['settle_game_info'],
 		  ))
 		cursor.execute(
