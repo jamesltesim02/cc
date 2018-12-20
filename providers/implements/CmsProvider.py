@@ -24,7 +24,7 @@ class CmsProvider(ProviderInterface):
     self.apiUsername = apiUser['username']
     self.apiPwd = apiUser['pw']
     self.apiBack = apiUser['back'] #特殊战局
-    self.clubId = '588000'
+    self.clubId = apiUser['clubid']
     self.conf = conf
     self.conn.close()
 
@@ -77,6 +77,19 @@ class CmsProvider(ProviderInterface):
       params['gameRoomId']
     )
 
+  def getCurrentGameList(self):
+    """
+      params:
+      {
+        无
+      }
+    """
+    return cmsapi.getCurrentGameList(
+      self.apiUsername,
+      self.apiPwd,
+      self.clubId
+    )
+
   def getHistoryGameList(self, params):
     """
     查询游戏列表
@@ -84,7 +97,7 @@ class CmsProvider(ProviderInterface):
     return cmsapi.getHistoryGameList(
       self.apiUsername,
       self.apiPwd,
-      self.conf['cloubId'],
+      self.clubId,
       params['starttime'],
       params['endtime']
     )
