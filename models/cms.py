@@ -4,6 +4,8 @@
 import time
 import datetime
 import base64
+import traceback
+import hashlib
 
 def addBuyinLog(conn, purseInfo, buyin, action):
 	with conn.cursor() as cursor:
@@ -25,7 +27,7 @@ def addBuyinLog(conn, purseInfo, buyin, action):
 			buyin['room_name'],
 			buyin['room_id']))
 
-def updatePurse(conn, info, delta):
+def updatePurse(conn, info, delta, roomId):
 
 	cursor = conn.cursor()
 	try:
@@ -45,7 +47,7 @@ def updatePurse(conn, info, delta):
 		        `apply_time`,
 		        `change_time`,
 		        `game_id`,
-		        `settle_game_info`,
+		        `settle_game_info`
 		      ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 		      """
 
@@ -60,7 +62,7 @@ def updatePurse(conn, info, delta):
 		    info['point'],
 		    timestamp,
 		    timestamp,
-		    info['game_id'],
+		    roomId,
 		    info['settle_game_info'],
 		  ))
 		cursor.execute(
@@ -75,7 +77,7 @@ def updatePurse(conn, info, delta):
 		    info['point'],
 		    timestamp,
 		    timestamp,
-		    info['game_id'],
+		    roomId,
 		    info['settle_game_info'],
 		  )
 		)
@@ -107,24 +109,24 @@ def syncCmsBuyin(conn, purseInfo, buyin, delta):
 		clubName = "Not_recorded"
 		sql = "INSERT INTO `onethink_cms_buyin_log` ( `userid`, `username`, `game_vid`, `club_id`,"\
 		" `join_cash`, `application_time`, `check_time`, `check_user`, `check_status`, `room_name`, `room_id`) "\
-		"VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+		"VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 		cursor.execute(sql,
 			(purseInfo['frontend_user_id'],
 			purseInfo['frontend_user_auth'],
 			purseInfo['game_vid'],
 			clubName,
-			buyin['amounts'],
+			buyin['buyStack'],
 			str(time.time()),
 			str(time.time()),
 			'Auto_Buyin_Tool_B', 
-			action,
-			buyin['room_name'],
-			buyin['room_id']))
+			'accept',
+			buyin['gameRoomName'],
+			buyin['gameRoomId']))
 
 		timestamp = str(time.time())
-		cash = int(info['cash'])+int(delta)
+		cash = int(purseInfo['cash'])+int(delta)
 		sql = "update onethink_player_purse set cash=%s where id=%s"
-		cursor.execute(sql, (str(cash), info['pp.id']))
+		cursor.execute(sql, (str(cash), purseInfo['pp.id']))
 		sql = """
 		      INSERT INTO `onethink_cms_auto_cash_log` (
 		        `username`,
@@ -137,7 +139,7 @@ def syncCmsBuyin(conn, purseInfo, buyin, delta):
 		        `apply_time`,
 		        `change_time`,
 		        `game_id`,
-		        `settle_game_info`,
+		        `settle_game_info`
 		      ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 		      """
 
@@ -146,22 +148,23 @@ def syncCmsBuyin(conn, purseInfo, buyin, delta):
 		cursor.execute(
 		  sql,
 		  (
-		    info['frontend_user_auth'],
-		    info['cash'],
-		    info['diamond'],
-		    info['point'],
+		    purseInfo['frontend_user_auth'],
+		    purseInfo['cash'],
+		    purseInfo['diamond'],
+		    purseInfo['point'],
 		    str(cash),
-		    info['diamond'],
-		    info['point'],
+		    purseInfo['diamond'],
+		    purseInfo['point'],
 		    timestamp,
 		    timestamp,
-		    info['game_id'],
+		    buyin['gameRoomId'],
 		    identify,
 		  )
 		)
 		cursor.close()
 		conn.commit()
 	except Exception as e:
+		traceback.print_exc()
 		cursor.close()
 		conn.rollback()
 
