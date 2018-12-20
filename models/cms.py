@@ -380,6 +380,7 @@ def addSettleFailLog(cursor, params):
       )
       values(%s, %s,  %s, %s, %s, %s, %s)
 	    """
+  print((sql, params))
 	cursor.execute(
 	    sql,
 	    (
