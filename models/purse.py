@@ -28,6 +28,12 @@ def getPurseInfoByGameId(conn, gameId):
     cursor.execute(sql, (gameId))
     return cursor.fetchone()
 
+def getPurseInfoByGameIdWidthCursor(cursor, gameId):
+  sql = "select * from onethink_ucenter_vid_member as uv, onethink_player_purse as pp, onethink_ucenter_member as um"\
+  " where uv.game_vid=%s and uv.frontend_user_auth = pp.username and uv.frontend_user_auth = um.username"
+  cursor.execute(sql, (gameId))
+  return cursor.fetchone()
+
 def getTotoalBuyinAmount(conn, pccid, beginTime, endTime, joinToken):
   with conn.cursor() as cursor:
     sql = """
@@ -48,11 +54,11 @@ def getTotoalBuyinAmount(conn, pccid, beginTime, endTime, joinToken):
     cursor.execute(sql, (beginTime, endTime, pccid, joinToken))
     return cursor.fetchone()
 
-def getSettleRecord(conn, settleGameInfo):
-  with conn.cursor() as cursor:
-    sql = "select count(1) as settle_count from onethink_auto_api_cash_log where settle_game_info=%s"
-    cursor.execute(sql, (settleGameInfo))
-    return cursor.fetchone()
+def getSettleRecord(cursor, settleGameInfo):
+  # with conn.cursor() as cursor:
+  sql = "select count(1) as settle_count from onethink_auto_api_cash_log where settle_game_info=%s"
+  cursor.execute(sql, (settleGameInfo))
+  return cursor.fetchone()
 
 def updatePurse(conn, info, delta):
 

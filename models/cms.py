@@ -27,9 +27,7 @@ def addBuyinLog(conn, purseInfo, buyin, action):
 			buyin['room_name'],
 			buyin['room_id']))
 
-def updatePurse(conn, info, delta, roomId):
-
-	cursor = conn.cursor()
+def updatePurse(cursor, info, delta, roomId):
 	try:
 		timestamp = str(time.time())
 		cash = int(info['cash'])+int(delta)
@@ -185,7 +183,7 @@ def check_game_list(conn, createtime, roomid):
 	return cursor.fetchall()
 
 
-def saveGameinfo(conn, params):
+def saveGameinfo(cursor, params):
   sql = """
           insert into onethink_historygamelist (
             `roomname`,
@@ -216,7 +214,6 @@ def saveGameinfo(conn, params):
             %s
           )
         """
-  cursor = conn.cursor()
   cursor.execute(
     sql,
     (
@@ -235,25 +232,22 @@ def saveGameinfo(conn, params):
     )
   )
 
-def getCountOfGameinfo(conn, params):
+def getCountOfGameinfo(cursor, params):
   sql = """
         select count(1) as game_count
         from onethink_historygamelist
         where roomid = %s and createtime = %s
         """
-
-  # print((sql, params))
-  with conn.cursor() as cursor:
-    cursor.execute(
-      sql,
-      (
-        params['roomid'],
-        params['createtime'] / 1000
-      )
+  cursor.execute(
+    sql,
+    (
+      params['roomid'],
+      params['createtime'] / 1000
     )
-    return cursor.fetchone()
+  )
+  return cursor.fetchone()
 
-def saveGameUserRecord(conn, params):
+def saveGameUserRecord(cursor, params):
   sql = """
         INSERT INTO `onethink_historygamedetail` (
           `insuranceGetStacks`, 
@@ -302,8 +296,6 @@ def saveGameUserRecord(conn, params):
           %s
         )
         """
-
-  cursor = conn.cursor()
   cursor.execute(
     sql,
     (
@@ -347,38 +339,35 @@ def getCountOfUser(conn, params):
     )
     return cursor.fetchone()
 
-def getTotoalCmsBuyinAmount(conn, pccid, roomid, beginTime, endTime):
-  with conn.cursor() as cursor:
-    sql = """
-      select
-        sum(join_cash) as total_amount
-      from
-        onethink_cms_buyin_log
-      where
-        check_time between %s and %s
-        and
-        game_vid = %s
-        and
-        room_id = %s
-        and
-        check_status = 'accept'
-    """
+def getTotoalCmsBuyinAmount(cursor, pccid, roomid, beginTime, endTime):
+  sql = """
+    select
+      sum(join_cash) as total_amount
+    from
+      onethink_cms_buyin_log
+    where
+      check_time between %s and %s
+      and
+      game_vid = %s
+      and
+      room_id = %s
+      and
+      check_status = 'accept'
+  """
 
-    cursor.execute(sql, (beginTime, endTime, pccid, roomid))
-    return cursor.fetchone()
+  cursor.execute(sql, (beginTime, endTime, pccid, roomid))
+  return cursor.fetchone()
 
-def getSpecialRake(conn, cloubId):
+def getSpecialRake(cursor, cloubId):
   sql = """
         SELECT * 
         FROM `onethink_cms_special_session_back` 
         WHERE `clubid` = %s
         """
-  with conn.cursor() as cursor:
-    cursor.execute(sql, cloubId)
-    return cursor.fetchone()
+  cursor.execute(sql, cloubId)
+  return cursor.fetchone()
 
-def addSettleFailLog(conn, params):
-	cursor = conn.cursor()
+def addSettleFailLog(cursor, params):
 	sql = """
       insert into onethink_cms_game_end(
         game_uid,

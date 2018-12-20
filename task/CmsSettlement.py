@@ -19,6 +19,7 @@ class CmsSettlement(Task):
   def setApi(self, conf):
     Task.setApi(self, conf)
     self.conf = self.api.conf
+    self.cursor = None
     self.tempFile = '%s/cmssettlementtime-%s.txt' % (TEMP_DIR, self.conf['name'])
     self.memberInfo = None
 
@@ -31,7 +32,7 @@ class CmsSettlement(Task):
   # 获取抽水额度
   def getRake(self, roomname):
     specials = cms.getSpecialRake(
-      self.conn,
+      self.cursor,
       self.conf['cloubId']
     )
     if specials and len(specials) > 0:
@@ -73,19 +74,19 @@ class CmsSettlement(Task):
     )
 
     # 查询用户是否存在
-    memberResult = purse.getPurseInfoByGameId(
-      self.conn,
+    memberResult = purse.getPurseInfoByGameIdWidthCursor(
+      self.cursor,
       userRecord['showId']
     )
     if not memberResult:
       print('no user')
       # 记录用户不存在的日志
       gameEndLog['action'] = 'no UID'
-      cms.addSettleFailLog(self.conn, gameEndLog)
+      cms.addSettleFailLog(self.cursor, gameEndLog)
       return
 
     # 查询结算表中是否已有结算记录.如果已经存在,则抛弃
-    settleCountResult = purse.getSettleRecord(self.conn, settleGameInfo)
+    settleCountResult = purse.getSettleRecord(self.cursor, settleGameInfo)
     if settleCountResult['settle_count'] > 0:
       print(('already settlemented'))
       return
@@ -96,7 +97,7 @@ class CmsSettlement(Task):
 
     # 查询是否有足够的转入金额
     buyinResult = cms.getTotoalCmsBuyinAmount(
-      self.conn,
+      self.cursor,
       userRecord['showId'],
       gameInfo['roomid'],
       beginTime,
@@ -109,7 +110,7 @@ class CmsSettlement(Task):
       if not buyinResult['total_amount'] or buyinResult['total_amount'] == 0:
         print('no apply')
         gameEndLog['action'] = 'no Buyin'
-        cms.addSettleFailLog(self.conn, gameEndLog)
+        cms.addSettleFailLog(self.cursor, gameEndLog)
       else:
         print((
           'amount not match, local:', 
@@ -122,7 +123,7 @@ class CmsSettlement(Task):
             userRecord['buyinStack']
           )
         )
-        cms.addSettleFailLog(self.conn, gameEndLog)
+        cms.addSettleFailLog(self.cursor, gameEndLog)
       return
 
     updateBalance = 0
@@ -149,18 +150,18 @@ class CmsSettlement(Task):
     userRecord['afbonus'] = updateBalance
     userRecord['back'] = afterwater
     cms.saveGameUserRecord(
-      self.conn,
+      self.cursor,
       userRecord
     )
 
     # 记录结算日志
     gameEndLog['action'] = 'OK'
-    cms.addSettleFailLog(self.conn, gameEndLog)
+    cms.addSettleFailLog(self.cursor, gameEndLog)
 
     # 更新钱包
     memberResult['settle_game_info'] = settleGameInfo
     cms.updatePurse(
-      self.conn,
+      self.cursor,
       memberResult,
       updateBalance,
       gameInfo['roomid']
@@ -174,7 +175,7 @@ class CmsSettlement(Task):
 
     # 是否已经结算过此战局
     gameCount = cms.getCountOfGameinfo(
-      self.conn,
+      self.cursor,
       {
         'roomid': gameInfo['roomid'],
         'createtime': gameInfo['createtime']
@@ -202,7 +203,7 @@ class CmsSettlement(Task):
 
     # 将战局结算记录插入表中
     cms.saveGameinfo(
-      self.conn,
+      self.cursor,
       gameInfo
     )
 
@@ -257,7 +258,7 @@ class CmsSettlement(Task):
       
       print('status = 1')
       self.memberInfo = statusResult
-      
+      self.cursor = self.conn.cursor()
       self.settlement()
       self.conn.commit()
     except Exception as e:
