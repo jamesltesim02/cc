@@ -7,6 +7,7 @@ from task.Settlement import Settlement
 from config import config
 from providers import ProviderFactory
 import requests
+import time
 
 c = CmsBuyinCheckin(5)
 c.setApi(config)
@@ -31,3 +32,4 @@ c.start()
 # print p.getBuyin()
 
 # print(float(5)/100)
+print(int(time.time() * 1000))

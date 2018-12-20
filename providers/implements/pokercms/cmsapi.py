@@ -86,6 +86,8 @@ def invoke_api(api, username, password, params={}):
   tempfile = open(tempfile_path, 'r')
   tcinfo = json.loads(tempfile.read())
   
+  # print((api, username, password, params))
+
   result = requests.post(
       base_url + api,
       data = params,
@@ -157,7 +159,13 @@ def denyBuyin(username, password, user_uuid, room_id):
   })
 
 # 查询牌局列表
-def getHistoryGameList(username, password, club_id, start_time, end_time):
+def getHistoryGameList(
+  username,
+  password,
+  club_id,
+  start_time,
+  end_time
+):
   return invoke_api(
     'game/getHistoryGameList',
     username,

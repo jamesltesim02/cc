@@ -47,15 +47,16 @@ class CmsSettlement(Task):
     针对战绩的每个用户数据进行结算
     """
 
-    print(('will settle user record:', userRecord))
+    print(('will settle user record:', userRecord, gameInfo))
 
     currentTime = str(time.time())
-    gameEndTime = self.getCustTimestamp(gameInfo['endTime'])
+    gameEndTime = self.getCustTimestamp(userRecord['endTime'])
     gameEndLog = {
       'game_uid': userRecord['showId'],
       'game_name': gameInfo['roomname'],
       'game_id': gameInfo['roomid'],
       'board_id': '',
+      'create_game_time': gameInfo['createtime'],
       'end_game_time': gameEndTime,
       'apply_time': currentTime
     }
@@ -130,19 +131,17 @@ class CmsSettlement(Task):
     if userRecord['bonus'] > 0:
       rake = float(self.getRake(gameInfo['roomname']))
       # 抽水
-      afterwater = int(userRecord['bonus'] * rake)
+      afterwater = userRecord['bonus'] - int(userRecord['bonus'] * rake)
       updateBalance = afterwater + userRecord['buyinStack']
     else:
       updateBalance = userRecord['remainStack']
       afterwater = userRecord['bonus']
 
-    # 更新钱包
-    memberResult['settle_game_info'] = settleGameInfo
-    cms.updatePurse(
-      self.conn,
-      memberResult,
-      updateBalance
-    )
+    print(({
+      'update balance': updateBalance,
+      'afterwater': afterwater,
+      'rake': rake
+    }))
 
     # 记录用户战绩日志
     userRecord['roomid'] = gameInfo['roomid']
@@ -158,6 +157,15 @@ class CmsSettlement(Task):
     gameEndLog['action'] = 'OK'
     cms.addSettleFailLog(self.conn, gameEndLog)
 
+    # 更新钱包
+    memberResult['settle_game_info'] = settleGameInfo
+    cms.updatePurse(
+      self.conn,
+      memberResult,
+      updateBalance,
+      gameInfo['roomid']
+    )
+
   # 针对战局进行结算
   def settleGame(self, gameInfo):
     """
@@ -172,7 +180,8 @@ class CmsSettlement(Task):
         'createtime': gameInfo['createtime']
       }
     )
-    if gameCount['settle_count'] > 0:
+
+    if gameCount['game_count'] > 0:
       print(('game already settlemented:', gameInfo))
       return
     
@@ -202,25 +211,26 @@ class CmsSettlement(Task):
     """
     结算
     """
-    now = datetime.datetime.now()
-    nowStr = now.strftime('%Y-%m-%d %H:%M:%S')
-    lastTimeStr = False
+    now = int(time.time() * 1000)
+    lastTime = False
 
     if os.path.exists(self.tempFile):
       try:
         tempfileReader = open(self.tempFile, 'r')
-        lastTimeStr = json.loads(tempfileReader.read())['lastTime']
-        lastTime = datetime.datetime.strptime(lastTimeStr,'%Y-%m-%d %H:%M:%S')
-        lastTimeStr = (lastTime + datetime.timedelta(minutes = -60)).strftime('%Y-%m-%d %H:%M:%S')
+        lastTime = json.loads(tempfileReader.read())['lastTime']
+        # lastTime = lastTime - 600000
       except Exception as e:
         traceback.print_exc()
-    if not lastTimeStr:
-      lastTimeStr = (now + datetime.timedelta(days = -3)).strftime('%Y-%m-%d %H:%M:%S')
+    if not lastTime:
+      lastTime = (now - (24*60*60*1000))
 
     roomReuslt = self.api.getHistoryGameList({
-      'starttime': lastTimeStr,
-      'endtime': nowStr,
+      'starttime': lastTime,
+      'endtime': now,
     })
+
+    tempfile = open(self.tempFile, 'w+')
+    tempfile.write(json.dumps({ 'lastTime': now }))
 
     # 没有查到战局
     if (
@@ -228,6 +238,7 @@ class CmsSettlement(Task):
       or not roomReuslt.has_key('result') 
       or roomReuslt['result']['total'] == 0
     ):
+      print('no record')
       return
     
     for gameInfo in roomReuslt['result']['list']:
@@ -241,20 +252,16 @@ class CmsSettlement(Task):
       statusResult = api.getLoginInfo(self.conn, self.conf['serviceCode'])
       # 关闭同步功能
       if not statusResult or statusResult['status'] == 0:
+        print('status = 0')
         return
       
+      print('status = 1')
       self.memberInfo = statusResult
-    except Exception as e:
-      traceback.print_exc()
-    finally:
-      self.conn.close()
-
-    # 结算
-    try:
-      self.conn = conn(self.config['db'])
+      
       self.settlement()
       self.conn.commit()
     except Exception as e:
+      traceback.print_exc()
       self.conn.rollback()
     finally:
       self.conn.close()

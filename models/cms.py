@@ -81,11 +81,8 @@ def updatePurse(conn, info, delta, roomId):
 		    info['settle_game_info'],
 		  )
 		)
-		cursor.close()
-		conn.commit()
 	except Exception as e:
-		cursor.close()
-		conn.rollback()
+    raise e
 
 def syncCmsBuyin(conn, purseInfo, buyin, delta):
 	
@@ -234,7 +231,7 @@ def saveGameinfo(conn, params):
       str(params['players']),
       str(params['roomid']),
       str(params['smallblind']),
-      str(divmod(params['createtime'], 1000)[0])
+      str(params['createtime']/1000)
     )
   )
 
@@ -244,12 +241,14 @@ def getCountOfGameinfo(conn, params):
         from onethink_historygamelist
         where roomid = %s and createtime = %s
         """
+
+  # print((sql, params))
   with conn.cursor() as cursor:
     cursor.execute(
       sql,
       (
         params['roomid'],
-        params['createtime']
+        params['createtime'] / 1000
       )
     )
     return cursor.fetchone()
@@ -390,7 +389,7 @@ def addSettleFailLog(conn, params):
         apply_time,
         action
       )
-      values(%s, %s,  %s, %s, %s, %s)
+      values(%s, %s,  %s, %s, %s, %s, %s)
 	    """
 	cursor.execute(
 	    sql,
