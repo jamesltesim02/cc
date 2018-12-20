@@ -171,16 +171,8 @@ def getBuyin(conn, gameId, roomName, roomId):
 	"`game_vid` = %s AND `room_name` = %s AND room_id= %S "\
 	"AND `application_time` BETWEEN %s AND %s AND `check_status` = 'accept'"
 	with conn.cursor() as cursor:
-		cursor.execute(sql, (gameId, roomName, roomid, starttime, endtime))
+		cursor.execute(sql, (gameId, roomName, roomId, starttime, endtime))
 		return cursor.fetchone()
-
-def check_game_list(conn, createtime, roomid):
-	cursor = conn.cursor()
-	timestamp, ms = divmod(createtime, 1000)
-	sql = "SELECT * FROM `onethink_cms_game_end` WHERE "\
-	"`game_id`= %s AND `create_game_time` = %s"
-	cursor.execute(sql,(roomId, createtime))
-	return cursor.fetchall()
 
 
 def saveGameinfo(cursor, params):
@@ -380,7 +372,7 @@ def addSettleFailLog(cursor, params):
       )
       values(%s, %s,  %s, %s, %s, %s, %s)
 	    """
-  print((sql, params))
+	print((sql, params))
 	cursor.execute(
 	    sql,
 	    (

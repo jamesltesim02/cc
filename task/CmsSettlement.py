@@ -260,9 +260,12 @@ class CmsSettlement(Task):
       self.memberInfo = statusResult
       self.cursor = self.conn.cursor()
       self.settlement()
+      self.cursor.close()
       self.conn.commit()
     except Exception as e:
+      print "rollback"
       traceback.print_exc()
+      self.cursor.close()
       self.conn.rollback()
     finally:
       self.conn.close()
