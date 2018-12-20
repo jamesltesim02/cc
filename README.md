@@ -16,6 +16,13 @@
     ALTER TABLE `onethink_api_import_game_end`
 	    ADD COLUMN `settle_game_info` VARCHAR(255) NULL COMMENT '汇入的战局唯一标志' AFTER `action`;
 
+    
+    alter table onethink_historygamedetail engine=Innodb;  
+    alter table onethink_cms_game_end engine=Innodb;  
+    alter table onethink_cms_buyin_log engine=Innodb;  
+    alter table onethink_cms_auto_cash_log engine=Innodb;
+    alter table onethink_historygamelist engine=Innodb;
+    
     ALTER TABLE `onethink_cms_auto_cash_log` ADD `settle_game_info` VARCHAR(255) NULL DEFAULT NULL AFTER `change_time`;
 
 ### 1.2. 依赖环境安装配置  
