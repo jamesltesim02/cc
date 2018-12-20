@@ -27,7 +27,7 @@ def addBuyinLog(conn, purseInfo, buyin, action):
 			buyin['room_name'],
 			buyin['room_id']))
 
-def updatePurse(conn, info, delta):
+def updatePurse(conn, info, delta, roomId):
 
 	cursor = conn.cursor()
 	try:
@@ -47,7 +47,7 @@ def updatePurse(conn, info, delta):
 		        `apply_time`,
 		        `change_time`,
 		        `game_id`,
-		        `settle_game_info`,
+		        `settle_game_info`
 		      ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 		      """
 
@@ -77,7 +77,7 @@ def updatePurse(conn, info, delta):
 		    info['point'],
 		    timestamp,
 		    timestamp,
-		    info['game_id'],
+		    roomId,
 		    info['settle_game_info'],
 		  )
 		)
