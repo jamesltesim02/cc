@@ -1,15 +1,15 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
-# from task.buyinCheckin import BuyinCheckin
-# from task.CmsBuyinCheckin import CmsBuyinCheckin
-# from task.Settlement import Settlement
-# from config import config
-# from providers import ProviderFactory
-# import requests
+from task.buyinCheckin import BuyinCheckin
+from task.CmsBuyinCheckin import CmsBuyinCheckin
+from task.Settlement import Settlement
+from config import config
+from providers import ProviderFactory
+import requests
 
-# c = CmsBuyinCheckin(5)
-# c.setApi(config)
-# c.callback()
+c = CmsBuyinCheckin(5)
+c.setApi(config)
+c.callback()
 
 # t = BuyinCheckin(5)
 # t.setApi(config)
