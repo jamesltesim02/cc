@@ -27,4 +27,5 @@ from config import config
 # CMS代理商自动结算任务, 每10秒执行一次
 t3 = CmsSettlement(10)
 t3.setApi(config)
-t3.start()
+# t3.start()
+t3.callback()
