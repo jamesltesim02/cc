@@ -82,7 +82,7 @@ def updatePurse(conn, info, delta, roomId):
 		  )
 		)
 	except Exception as e:
-    raise e
+		raise e
 
 def syncCmsBuyin(conn, purseInfo, buyin, delta):
 	
