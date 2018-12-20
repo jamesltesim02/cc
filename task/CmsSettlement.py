@@ -128,6 +128,7 @@ class CmsSettlement(Task):
 
     updateBalance = 0
     afterwater = 0
+    rake = 0
 
     if userRecord['bonus'] > 0:
       rake = float(self.getRake(gameInfo['roomname']))

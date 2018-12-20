@@ -23,6 +23,11 @@
     alter table onethink_cms_auto_cash_log engine=Innodb;
     alter table onethink_historygamelist engine=Innodb;
     
+    ALTER TABLE `onethink_cms_game_end`
+	CHANGE COLUMN `create_game_time` `create_game_time` VARCHAR(255) NOT NULL DEFAULT '0' COMMENT '創造時間' AFTER `game_id`,
+	CHANGE COLUMN `end_game_time` `end_game_time` VARCHAR(255) NOT NULL DEFAULT '0' COMMENT '遊戲結束時間' AFTER `create_game_time`,
+    CHANGE COLUMN `apply_time` `apply_time` VARCHAR(255) NOT NULL DEFAULT '0' COMMENT '執行時間'  AFTER `end_game_time`;
+
     ALTER TABLE `onethink_cms_auto_cash_log` ADD `settle_game_info` VARCHAR(255) NULL DEFAULT NULL AFTER `change_time`;
 
 ### 1.2. 依赖环境安装配置  
