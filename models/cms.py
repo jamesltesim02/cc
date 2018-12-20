@@ -90,17 +90,17 @@ def syncCmsBuyin(conn, purseInfo, buyin, delta):
 	cursor = conn.cursor()
 	try:
 		now = time.time()
-	    buyinKeys = buyin.keys()
-	    buyinKeys.sort()
-	    identify = ''
-	    for key in buyinKeys:
-	    	identify += '%s:%s' %(key, buyin[key])
-	    identify = hashlib.md5(identify.encode('utf-8')).hexdigest()
-	    sql = "select apply_time from onethink_cms_auto_cash_log where settle_game_info=%s order by apply_time desc"
-	    cursor.execute(sql, (identify))
-	    rel = cursor.fetchone()
-	    print rel
-	    if rel != None and int(now)-int(rel['apply_time']) <= 24*60*60:
+		buyinKeys = buyin.keys()
+		buyinKeys.sort()
+		identify = ''
+		for key in buyinKeys:
+			identify += '%s:%s' %(key, buyin[key])
+		identify = hashlib.md5(identify.encode('utf-8')).hexdigest()
+		sql = "select apply_time from onethink_cms_auto_cash_log where settle_game_info=%s order by apply_time desc"
+		cursor.execute(sql, (identify))
+		rel = cursor.fetchone()
+		print rel
+		if rel != None and int(now)-int(rel['apply_time']) <= 24*60*60:
 			cursor.close()
 			return
 

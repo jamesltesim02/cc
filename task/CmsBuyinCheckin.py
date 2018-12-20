@@ -21,6 +21,7 @@ class CmsBuyinCheckin(Task):
 
         rel =  self.api.getBuyin()
         list = rel['result']
+        print list
         for item in list:
             print item
             uid = item['showId']
