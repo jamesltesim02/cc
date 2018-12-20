@@ -25,7 +25,7 @@ class CmsBuyinCheckin(Task):
         for item in list:
             print item
             uid = item['showId']
-            if int(uid) == 1868828686:
+            if int(uid) > 0:
                 purseInfo = purse.getPurseInfoByGameId(self.conn, uid)
                 data = {
                     'uuid':item['uuid'], 
