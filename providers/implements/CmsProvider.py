@@ -72,7 +72,7 @@ class CmsProvider(ProviderInterface):
     return cmsapi.denyBuyin(
       self.apiUsername,
       self.apiPwd,
-      self.clubId,
+      # self.clubId,
       params['uuid'],
       params['gameRoomId']
     )
