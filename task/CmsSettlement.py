@@ -133,7 +133,7 @@ class CmsSettlement(Task):
     if userRecord['bonus'] > 0:
       rake = float(self.getRake(gameInfo['roomname']))
       # 抽水
-      afterwater = userRecord['bonus'] - int(userRecord['bonus'] * rake)
+      afterwater = int(userRecord['bonus'] * rake)
       updateBalance = afterwater + userRecord['buyinStack']
     else:
       updateBalance = userRecord['remainStack']
@@ -220,7 +220,7 @@ class CmsSettlement(Task):
       try:
         tempfileReader = open(self.tempFile, 'r')
         lastTime = json.loads(tempfileReader.read())['lastTime']
-        # lastTime = lastTime - 600000
+        lastTime = lastTime - 600000
       except Exception as e:
         traceback.print_exc()
     if not lastTime:
