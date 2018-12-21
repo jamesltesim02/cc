@@ -86,7 +86,7 @@ class CmsSettlement(Task):
       return
 
     # 查询结算表中是否已有结算记录.如果已经存在,则抛弃
-    settleCountResult = purse.getSettleRecord(self.cursor, settleGameInfo)
+    settleCountResult = cms.getSettleRecord(self.cursor, settleGameInfo)
     if settleCountResult['settle_count'] > 0:
       print(('already settlemented'))
       return

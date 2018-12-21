@@ -55,10 +55,10 @@ def getTotoalBuyinAmount(conn, pccid, beginTime, endTime, joinToken):
     return cursor.fetchone()
 
 def getSettleRecord(cursor, settleGameInfo):
-  # with conn.cursor() as cursor:
-  sql = "select count(1) as settle_count from onethink_auto_api_cash_log where settle_game_info=%s"
-  cursor.execute(sql, (settleGameInfo))
-  return cursor.fetchone()
+  with conn.cursor() as cursor:
+    sql = "select count(1) as settle_count from onethink_auto_api_cash_log where settle_game_info=%s"
+    cursor.execute(sql, (settleGameInfo))
+    return cursor.fetchone()
 
 def updatePurse(conn, info, delta):
 

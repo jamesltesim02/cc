@@ -82,6 +82,12 @@ def updatePurse(cursor, info, delta, roomId):
 	except Exception as e:
 		raise e
 
+def getSettleRecord(cursor, settleGameInfo):
+  sql = "select count(1) as settle_count from onethink_cms_auto_cash_log where settle_game_info=%s"
+  cursor.execute(sql, (settleGameInfo))
+  return cursor.fetchone()
+
+
 def syncCmsBuyin(conn, purseInfo, buyin, delta):
 	
 	cursor = conn.cursor()
