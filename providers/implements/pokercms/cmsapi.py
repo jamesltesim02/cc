@@ -78,13 +78,20 @@ def login(username, password):
 
   raise Exception(json.dumps(result))
 
-# 调用接口封装
-def invoke_api(api, username, password, params={}):
-  if os.path.exists(tempfile_path) == False:
+def get_cookie(username, password):
+  if not os.path.exists(tempfile_path):
     login(username, password)
 
-  tempfile = open(tempfile_path, 'r')
-  tcinfo = json.loads(tempfile.read())
+  try:
+    tempfile = open(tempfile_path, 'r')
+    return json.loads(tempfile.read())
+  except:
+    login(username, password)
+    return get_cookie(username, password)
+
+# 调用接口封装
+def invoke_api(api, username, password, params={}):
+  tcinfo = get_cookie(username, password)
   
   # print((api, username, password, params))
 
