@@ -1,5 +1,6 @@
 # 1. 初始化  
 ### 1.1. 数据库更新脚本  
+#### 1.1.1. 代理商同步任务更新脚本  
     alter table onethink_api_import_game_end engine=Innodb;  
     alter table onethink_auto_api_cash_log engine=Innodb;  
     alter table onethink_player_purse engine=Innodb;  
@@ -16,13 +17,18 @@
     ALTER TABLE `onethink_api_import_game_end`
 	    ADD COLUMN `settle_game_info` VARCHAR(255) NULL COMMENT '汇入的战局唯一标志' AFTER `action`;
 
-    
+#### 1.1.2. CMS同步任务更新脚本  
     alter table onethink_historygamedetail engine=Innodb;  
     alter table onethink_cms_game_end engine=Innodb;  
     alter table onethink_cms_buyin_log engine=Innodb;  
     alter table onethink_cms_auto_cash_log engine=Innodb;
     alter table onethink_historygamelist engine=Innodb;
     
+    ALTER TABLE `onethink_cms_game_end`
+        CHANGE COLUMN `create_game_time` `create_game_time` VARCHAR(255) NOT NULL DEFAULT '0' COMMENT '創造時間' AFTER `game_id`,
+        CHANGE COLUMN `end_game_time` `end_game_time` VARCHAR(255) NOT NULL DEFAULT '0' COMMENT '遊戲結束時間' AFTER `create_game_time`,
+        CHANGE COLUMN `apply_time` `apply_time` VARCHAR(255) NOT NULL DEFAULT '0' COMMENT '執行時間'  AFTER `end_game_time`;
+
     ALTER TABLE `onethink_cms_auto_cash_log` ADD `settle_game_info` VARCHAR(255) NULL DEFAULT NULL AFTER `change_time`;
 
 ### 1.2. 依赖环境安装配置  

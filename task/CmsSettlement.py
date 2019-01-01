@@ -86,7 +86,7 @@ class CmsSettlement(Task):
       return
 
     # 查询结算表中是否已有结算记录.如果已经存在,则抛弃
-    settleCountResult = purse.getSettleRecord(self.cursor, settleGameInfo)
+    settleCountResult = cms.getSettleRecord(self.cursor, settleGameInfo)
     if settleCountResult['settle_count'] > 0:
       print(('already settlemented'))
       return
@@ -128,11 +128,12 @@ class CmsSettlement(Task):
 
     updateBalance = 0
     afterwater = 0
+    rake = 0
 
     if userRecord['bonus'] > 0:
       rake = float(self.getRake(gameInfo['roomname']))
       # 抽水
-      afterwater = userRecord['bonus'] - int(userRecord['bonus'] * rake)
+      afterwater = int(userRecord['bonus'] * rake)
       updateBalance = afterwater + userRecord['buyinStack']
     else:
       updateBalance = userRecord['remainStack']
@@ -219,7 +220,7 @@ class CmsSettlement(Task):
       try:
         tempfileReader = open(self.tempFile, 'r')
         lastTime = json.loads(tempfileReader.read())['lastTime']
-        # lastTime = lastTime - 600000
+        lastTime = lastTime - 600000
       except Exception as e:
         traceback.print_exc()
     if not lastTime:
