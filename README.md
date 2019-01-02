@@ -31,6 +31,66 @@
 
     ALTER TABLE `onethink_cms_auto_cash_log` ADD `settle_game_info` VARCHAR(255) NULL DEFAULT NULL AFTER `change_time`;
 
+#### 1.1.3 coco同步任务脚本  
+    -- 额度变更记录表 --
+    drop table if exists `onethink_coco_auto_cash_log`;
+    CREATE TABLE `onethink_coco_auto_cash_log` (
+        `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '文档ID',
+        `username` VARCHAR(255) NOT NULL COMMENT '會員名稱',
+        `cash` VARCHAR(255) NOT NULL DEFAULT '0' COMMENT '原本金錢',
+        `diamond` VARCHAR(255) NOT NULL DEFAULT '0' COMMENT '原本鑽石',
+        `point` VARCHAR(255) NOT NULL DEFAULT '0' COMMENT '原本積分',
+        `change_cash` VARCHAR(255) NOT NULL DEFAULT '0' COMMENT '更改金錢',
+        `change_diamond` VARCHAR(255) NOT NULL DEFAULT '0' COMMENT '更改鑽石',
+        `change_point` VARCHAR(255) NOT NULL DEFAULT '0' COMMENT '更改積分',
+        `apply_time` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+        `change_time` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+        `settle_game_info` VARCHAR(255) NULL DEFAULT NULL,
+        PRIMARY KEY (`id`)
+    )
+    COLLATE='utf8_general_ci'
+    ENGINE=InnoDB
+    AUTO_INCREMENT=1;
+
+    -- 上分审批记录 --
+    drop table if exists `onethink_coco_join_game_log`;
+    CREATE TABLE `onethink_coco_join_game_log` (
+        `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+        `userid` VARCHAR(255) NOT NULL DEFAULT '0' COMMENT '會員ID' COLLATE 'utf8mb4_bin',
+        `username` VARCHAR(255) NOT NULL COMMENT '會員帳號' COLLATE 'utf8mb4_bin',
+        `game_vid` VARCHAR(255) NOT NULL COMMENT '遊戲VID' COLLATE 'utf8mb4_bin',
+        `club_id` VARCHAR(255) NOT NULL COMMENT '俱樂部ID' COLLATE 'utf8mb4_bin',
+        `join_cash` VARCHAR(255) NOT NULL COMMENT '上分金額' COLLATE 'utf8mb4_bin',
+        `application_time` INT(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT '申請時間',
+        `check_time` INT(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT '審核時間',
+        `check_user` VARCHAR(255) NULL DEFAULT NULL COMMENT '審核人員' COLLATE 'utf8mb4_bin',
+        `check_status` VARCHAR(255) NOT NULL DEFAULT '0' COMMENT '審核結果' COLLATE 'utf8mb4_bin',
+        `room_name` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8mb4_bin',
+        `club_room_name` VARCHAR(255) NOT NULL DEFAULT '\'\'' COLLATE 'utf8mb4_bin',
+        `chang_flag` TINYINT(1) NULL DEFAULT '0',
+        PRIMARY KEY (`id`)
+    )
+    COLLATE='utf8mb4_bin'
+    ENGINE=MyISAM
+    AUTO_INCREMENT=1;
+
+    -- 牌局结算记录表 --
+    drop table if exists `onethink_coco_import_game_end`;
+    CREATE TABLE `onethink_coco_import_game_end` (
+        `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+        `game_uid` VARCHAR(255) NOT NULL COMMENT '遊戲UID',
+        `game_id` VARCHAR(255) NULL DEFAULT '0' COMMENT 'API遊戲局ID' COLLATE 'utf8mb4_bin',
+        `board_id` VARCHAR(255) NULL DEFAULT '0' COMMENT 'api游戏局id',
+        `end_game_time` INT(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT '遊戲結束時間',
+        `apply_time` INT(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT '執行時間',
+        `action` VARCHAR(255) NOT NULL COMMENT '結果',
+        `settle_game_info` VARCHAR(255) NULL DEFAULT NULL COMMENT '汇入的战局唯一标志',
+        PRIMARY KEY (`id`)
+    )
+    COLLATE='utf8_general_ci'
+    ENGINE=InnoDB
+    AUTO_INCREMENT=1;
+
 ### 1.2. 依赖环境安装配置  
 #### 1.2.1. python模块  
     pip install PyMySQL xlrd
