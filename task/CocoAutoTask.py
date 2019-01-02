@@ -137,7 +137,8 @@ class CocoAutoTask(Task):
                     'connor_coco_buyin',
                     applyAction,
                     buyinRecord['gameRoomName'],
-                    buyinRecord['gameRoomId']
+                    buyinRecord['gameRoomId'],
+                    applyClubRommName
                 )
             )
 
