@@ -25,6 +25,10 @@ class CocoAutoTask(Task):
         self.api.setBuyinCallback(self.buyinCallback)
 
     def buyinCallback(self, data):
+        """
+        买入提案审批回调
+        """
+
         if not data or len(data) == 0:
             return
         
@@ -36,25 +40,31 @@ class CocoAutoTask(Task):
                 not clubRecord
                 or not clubRecord.has_key('data')
                 # 文档: 請依據 iErrCode 來判斷資料是否正確, 0 是正確，其餘都不正確 
-                or not clubRecord.has_key('iErrCode')
-                or clubRecord['iErrCode'] != 0
+                or not clubRecord['data'].has_key('iErrCode')
+                or clubRecord['data']['iErrCode'] != 0
                 # 是否有买入提案
                 or not clubRecord['data'].has_key('result')
                 or len(clubRecord['data']['result']) == 0
             ):
+                print ('coco:autotask:apply:no data:', clubRecord)
                 continue
 
             # 遍历得到提案数据
             for buyinRecord in clubRecord['data']['result']:
                 # 判断是否为当前代理需要处理的数据
                 if not buyinRecord.has_key('status') or buyinRecord['status'] != 'active':
+                    print ('coco:autotask:apply:not need apply:', buyinRecord)
                     continue
+
                 buyinRecord['clubId'] = clubRecord['clubId']
                 buyinRecord['clubName'] = clubRecord['sClubName']
-
                 self.applyBuyin(buyinRecord)
     
     def applyBuyin(self, buyinRecord):
+        """
+        买入提案逐条审批
+        """
+
         applyConn = conn(self.config['db'])
         applyCursor = applyConn.cursor()
         try:
