@@ -24,6 +24,37 @@ def getTotoalBuyinAmount(cursor, pccid, beginTime, endTime, joinToken):
     cursor.execute(sql, (beginTime, endTime, pccid, joinToken))
     return cursor.fetchone()
 
+def addApplyLog(cursor, params):
+    sql = """
+        INSERT INTO `onethink_coco_join_game_log` (
+            `userid`,
+            `username`,
+            `game_vid`,
+            `club_id`,
+            `join_cash`,
+            `application_time`,
+            `check_time`,
+            `check_user`,
+            `check_status`,
+            `room_name`,
+            `club_room_name`
+        ) 
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    """
+    cursor.execute(sql, params)
+
+def getCountApply(cursor, settle_game_info):
+    sql = """
+        select
+            count(1) as apply_count
+        from
+            onethink_coco_auto_cash_log
+        where
+            settle_game_info = %s
+    """
+    cursor.execute(sql, (settle_game_info))
+    return cursor.fetchone()
+
 def updatePurse(cursor, info, delta):
     timestamp = str(time.time())
     cash = int(info['cash'])+int(delta)

@@ -22,6 +22,11 @@ def getLoginInfo(conn, apiId):
         rel = cursor.fetchone()
         return rel
 
+def getLoginInfoWithCurror(cursor, apiId):
+    sql = "SELECT * FROM `onethink_api_member` WHERE `id` = %s"
+    cursor.execute(sql, (apiId))
+    rel = cursor.fetchone()
+    return rel
 
 def insertGameList(conn, gameInfo):
     cursor = conn.cursor()

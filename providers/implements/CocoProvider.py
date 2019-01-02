@@ -47,7 +47,7 @@ class CocoBuyinWorker:
         self.__regCallback__()
 
     def __wait__(self):
-        print('will wait')
+        print('coco:buyinworker:will wait')
         while True:
             if not self.working or not self.socketIO:
                 time.sleep(5)
@@ -63,7 +63,7 @@ class CocoBuyinWorker:
             self.buyinNamespace.on(self.clientTag, self.buyinCallback)
 
     def __success__(self, clientId):
-        print ('coco:buyinworker:success: client id:', clientId)
+        print ('coco:buyinworker:success:client id:', clientId)
         self.clientTag = 'client:%s' % clientId
         self.__regCallback__()
 
