@@ -4,14 +4,15 @@ from task.buyinCheckin import BuyinCheckin
 from task.CmsBuyinCheckin import CmsBuyinCheckin
 from task.CmsSyncGaming import CmsSyncGaming
 from task.Settlement import Settlement
+from task.CocoAutoTask import CocoAutoTask
 from config import config
 from providers import ProviderFactory
 import requests
 import time
 
-c = CmsBuyinCheckin(5)
-c.setApi(config)
-c.start()
+# c = CmsBuyinCheckin(5)
+# c.setApi(config)
+# c.start()
 
 # c = CmsSyncGaming(5)
 # c.setApi(config)
@@ -32,4 +33,9 @@ c.start()
 # print p.getBuyin()
 
 # print(float(5)/100)
-print(int(time.time() * 1000))
+# print(int(time.time() * 1000))
+
+t3 = CocoAutoTask(2)
+t3.setApi(config)
+# t3.callback()
+t3.start()

@@ -3,7 +3,7 @@
 
 
 config = {
-	'bzl-provider':{
+	'bzl-provider': {
 		'name': 'bzl-provider',
 	    'description': '通用提供商',
 	    'module': 'providers.implements.CommonProvider',
@@ -12,14 +12,23 @@ config = {
 	    'apiUrl': 'https://yqdp-manager689125.gakuen.fun/api',
 		'localDataPath': '/Volumes/rey/work/PHP/Holdem/Uploads/settlement/'
 	},
-	'cms-provider':{
+	'cms-provider': {
 		'name': 'cms-provider',
-	    'description': '通用提供商',
+	    'description': 'CMS提供商',
 	    'module': 'providers.implements.CmsProvider',
 	    'className': 'CmsProvider',
 	    'serviceCode': 6,
 		'cloubId': '21647880',
 	    'apiUrl': 'http://cms.pokermanager.club',
+	},
+	'coco-provider': {
+		'name': 'coco-provider',
+	    'description': 'coco提供商',
+	    'module': 'providers.implements.CocoProvider',
+	    'className': 'CocoProvider',
+	    'serviceCode': 7,
+	    'apiUrl': 'https://www.cmsweb.club',
+		'wsUrl': 'https://www.cmsweb.club:8000'
 	},
 	"db":{
 		"host":"54.213.203.214",

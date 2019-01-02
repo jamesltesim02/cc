@@ -7,7 +7,7 @@ import time
 from providers import ProviderFactory
 
 class Task(object):
-
+	providerName = ''
 	def __init__(self, interval):
 		self.interval = interval
 		self.e = threading.Event()
