@@ -11,7 +11,7 @@ from .task import Task
 
 import traceback
 
-from models import conn, purse, api, member
+from models import conn, purse, api, member, cocomodel
 
 TEMP_DIR = os.path.dirname(os.path.realpath(__file__)) + '/temp'
 
@@ -61,12 +61,14 @@ class Settlement(Task):
       lastTimeStr = (now + datetime.timedelta(days = -3)).strftime('%Y-%m-%d %H:%M:%S')
 
     try:
-      dataList = self.queryUserBoardList(
+      data = self.queryUserBoardList(
         lastTimeStr,
-        nowStr,
-        0
+        nowStr
       )
+      if not data or data['err'] != False:
+        return
 
+      dataList = data['data']
       print(dataList)
 
       if dataList:
@@ -88,37 +90,40 @@ class Settlement(Task):
     return str(time.mktime(t.timetuple()))
 
   def settleRecord(self, record):
-    if record['pccid'] != '2525717358':
+    if record['dpqId'] != '2525717358':
       print('user is not 2525717358')
       return
     currentTime = str(time.time())
-    gameEndTime = self.getCustTimestamp(record['end_time'])
+    gameEndTime = self.getCustTimestamp(record['endTime'])
 
     print(('开始处理:', record))
     
-    # 结算判断标志 pccid_roomName_clubName_buyIn_bringOut_endTime
+    # 结算判断标志
     settleGameInfo = base64.b64encode(
-      ('%s_%s_%s_%s_%s_%s'  % (
-        record['pccid'],
-        record['room_name'],
-        record['club_name'],
-        record['buy_in'],
-        record['bring_out'],
-        record['end_time']
+      ('%s_%s_%s_%s_%s_%s_%s'  % (
+        record['dpqId'],
+        record['clubId'],
+        record['createUser'],
+        record['roomName'],
+        record['endTime'],
+        record['bonus'],
+        record['waterBill']
       )).encode('utf-8')
     )
 
     gameEndLog = {
-      'game_uid': record['pccid'],
-      'game_id': record['room_name'],
+      'game_uid': record['dpqId'],
+      'game_id': record['roomName'],
       'board_id': '',
       'end_game_time': gameEndTime,
       'apply_time': currentTime,
       'settle_game_info': settleGameInfo,
     }
 
+    cursor = self.conn.cursor()
+
     # 判断是否查无此人
-    memberResult = purse.getPurseInfoByGameId(self.conn, record['pccid'])
+    memberResult = purse.getPurseInfoByGameId(self.conn, record['dpqId'])
     if not memberResult:
       print(('no user'))
       gameEndLog['action'] = 'no UID'
@@ -126,121 +131,58 @@ class Settlement(Task):
       return
 
 
-    # 查询结算表中是否已有结算记录.如果已经存在,则抛弃
-    countResult = purse.getSettleRecord(self.conn, settleGameInfo)
-    if countResult['settle_count'] > 0:
-      print(('already settlemented'))
-      return
+    try:
+        # 查询结算表中是否已有结算记录.如果已经存在,则抛弃
+        countResult = cocomodel.getSettleRecord(cursor, settleGameInfo)
+        if countResult['settle_count'] > 0:
+          print(('already settlemented'))
+          return
 
-    # 查询游戏期间该用户的所有带入金额是否足够与代理接口一致,不足则不结算
-    joinToken = base64.b64encode(('%s_%s' % (record['club_name'], record['room_name'])).encode('utf-8'))
-    print(('join token is:', joinToken))
+        # 查询游戏期间该用户的所有带入金额是否足够与代理接口一致,不足则不结算
+        joinToken = base64.b64encode(('%s_%s' % (record['clubId'], record['roomName'])).encode('utf-8'))
+        print(('join token is:', joinToken))
 
-    beginTime = self.getCustTimestamp(record['end_time'], minutes = -720)
-    endTime = self.getCustTimestamp(record['end_time'], minutes = 120)
-    buyInAmountResult = purse.getTotoalBuyinAmount(
-      self.conn,
-      record['pccid'],
-      beginTime,
-      endTime,
-      joinToken
-    )
+        beginTime = self.getCustTimestamp(record['endTime'], minutes = -720)
+        endTime = self.getCustTimestamp(record['endTime'], minutes = 120)
+        buyInAmountResult = cocomodel.getTotoalBuyinAmount(
+          cursor,
+          record['dpqId'],
+          beginTime,
+          endTime,
+          joinToken
+        )
 
-    print(('total buy in:',buyInAmountResult))
+        print(('total buy in:',buyInAmountResult))
 
-    if buyInAmountResult['totalAmount'] < record['buy_in']:
-      if not buyInAmountResult['totalAmount'] or buyInAmountResult['totalAmount'] == 0:
-        print(('no apply'))
-        gameEndLog['action'] = 'no Buyin'
-      else:
-        print(('amount not match, local:', buyInAmountResult['totalAmount'], ', remote', record['buy_in']))
-        gameEndLog['action'] = 'no enough, local buyin: %s, remote buyin: %s' % (buyInAmountResult['totalAmount'], record['buy_in'])
-    
-      purse.addSettleFailLog(self.conn, gameEndLog)
-      return
+        if not buyInAmountResult['totalAmount'] or buyInAmountResult['totalAmount'] == 0:
+            print(('no apply'))
+            gameEndLog['action'] = 'no Buyin'
+        
+            cocomodel.addSettleFailLog(cursor, gameEndLog)
+            return
 
-    # 记录结算日志
-    gameEndLog['action'] = 'OK'
-    purse.addSettleFailLog(self.conn, gameEndLog)
+        # 记录结算日志
+        gameEndLog['action'] = 'OK'
+        cocomodel.addSettleFailLog(cursor, gameEndLog)
 
-    memberResult['settle_game_info'] = settleGameInfo
+        memberResult['settle_game_info'] = settleGameInfo
 
-    # 更新钱包
-    purse.updatePurse(self.conn, memberResult, record['buy_in'] + record['afterwater'])
-
-  def toData(self, file):
-    name2columnMap = {
-        0: 'pccname',
-        1: 'pccid',
-        6: 'username',
-        8: 'club_name',
-        10: 'room_name',
-        12: 'end_time',
-        14: 'buy_in',
-        15: 'bring_out',
-        17: 'afterwater'
-    }
-    data = []
-    print(('begin transfer local file:', file))
-    x1 = xlrd.open_workbook(file)
-    sheet1 = x1.sheet_by_index(0)
-    print(sheet1)
-    if sheet1.nrows <= 1:
-        return data
-    for rn in range(1, sheet1.nrows):
-        rowData = {}
-        row = sheet1.row(rn)
-        for cn2 in range(0, len(row)):
-            if name2columnMap.has_key(cn2):
-                name = name2columnMap[cn2]
-                rowData[name] = row[cn2].value
-
-        rowData['buy_in'] = int(float(rowData['buy_in']))
-        rowData['bring_out'] = int(float(rowData['bring_out']))
-        rowData['afterwater'] = int(float(rowData['afterwater']))
-
-        data.append(rowData)
-
-    print(('local datas:', data))
-    return data
-
-  def localSettlement(self):
-    if not os.path.exists(self.conf['localDataPath']):
-      return
-    files = os.listdir(self.conf['localDataPath'])
-    print(('local files:', files))
-    if len(files) == 0:
-      return 
-
-    for num in range(0, len(files)):
-      if files[num] == 'failed':
-        continue
-      try:
-        rfile = os.path.join(self.conf['localDataPath'], files[num])
-        data = self.toData(rfile)
-        if len(data) == 0:
-          continue
-        for dnum in range(0, len(data)):
-          self.settleRecord(data[dnum])
-        os.remove(rfile)
-      except Exception as e:
-        print(('local settlement fail:', rfile))
-        faileddir = os.path.join(self.conf['localDataPath'], 'failed')
-        if not os.path.exists(faileddir):
-          os.makedirs(faileddir)
-        os.rename(rfile, os.path.join(faileddir, files[num]))
+        # 更新钱包
+        cocomodel.updatePurse(cursor, memberResult, buyInAmountResult['totalAmount'] + record['bonus'])
+        cocomodel.updateBuyinLog(
+          cursor,
+          record['dpqId'],
+          beginTime,
+          endTime,
+          joinToken)
+        cursor.close()
+        self.commit()
+    except Exception as e:
         traceback.print_exc()
-
+        cursor.close()
+        self.rollback()
 
   def callback(self):
-    try:
-      self.conn = conn(self.config['db'])
-      self.localSettlement()
-    except Exception as e:
-      traceback.print_exc()
-    finally:
-      self.conn.close()
-
     try:
       self.conn = conn(self.config['db'])
       self.settlement()
