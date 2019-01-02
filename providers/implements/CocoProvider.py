@@ -305,4 +305,4 @@ class CocoProvider(ProviderInterface):
             待定
         """
 
-        return self.__invoke__('home/game/history/searc', params = params)
+        return self.__invoke__('home/game/history/search', params = params)
