@@ -37,5 +37,5 @@ import time
 
 t3 = CocoAutoTask(2)
 t3.setApi(config)
-t3.callback()
-# t3.start()
+# t3.callback()
+t3.start()

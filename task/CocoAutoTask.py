@@ -189,19 +189,18 @@ class CocoAutoTask(Task):
         #     return
 
         now = datetime.datetime.now()
-        nowStr = now.strftime('%Y-%m-%d %H:%M:%S')
+        nowStr = now.strftime('%Y/%m/%d %H:%M')
         lastTimeStr = False
-
         if os.path.exists(self.tempFile):
             try:
                 tempfileReader = open(self.tempFile, 'r')
                 lastTimeStr = json.loads(tempfileReader.read())['lastTime']
-                lastTime = datetime.datetime.strptime(lastTimeStr,'%Y-%m-%d %H:%M:%S')
-                lastTimeStr = (lastTime + datetime.timedelta(minutes = -60)).strftime('%Y-%m-%d %H:%M:%S')
+                lastTime = datetime.datetime.strptime(lastTimeStr,'%Y/%m/%d %H:%M')
+                lastTimeStr = (lastTime + datetime.timedelta(minutes = -60)).strftime('%Y/%m/%d %H:%M')
             except Exception as e:
                 traceback.print_exc()
         if not lastTimeStr:
-            lastTimeStr = (now + datetime.timedelta(days = -3)).strftime('%Y-%m-%d %H:%M:%S')
+            lastTimeStr = (now + datetime.timedelta(days = -3)).strftime('%Y/%m/%d %H:%M')
 
         try:
             data = self.queryUserBoardList(
@@ -213,6 +212,7 @@ class CocoAutoTask(Task):
                 return
 
             dataList = data['data']
+            # dataList = [{u'endTime': u'2019-01-03 20:20:04', u'clubId': 26048334, u'waterBill': 0, u'bonus': 0, u'roomName': u'2/4\u26a1\ufe0f03211\u9650', u'dpqId': 4994638727, u'createUser': u'\u5730\u4e3b\u5bb6\u6709\u4f59\u7cae', u'dpqNick': u'\u6c23pupu', u'clubName': u'\u98de\u5929\u6d6a', u'finalBill': 0, u'insurancePremium': 0}, {u'endTime': u'2019-01-02 21:01:48', u'clubId': 168888, u'waterBill': 0, u'bonus': 0, u'roomName': u'24\u5f3a\U0001f3c6D204', u'dpqId': 4994638727, u'createUser': u'\u5965\u65af\u5361  \U0001f3c6', u'dpqNick': u'\u6c23pupu', u'clubName': u'\u5927\u5bb6\u5ead', u'finalBill': 0, u'insurancePremium': 0}, {u'endTime': u'2019-01-02 00:24:55', u'clubId': 168888, u'waterBill': 0, u'bonus': 0, u'roomName': u'24\u5f3a\U0001f3c6C204', u'dpqId': 4994638727, u'createUser': u'\u5965\u65af\u5361  \U0001f3c6', u'dpqNick': u'\u6c23pupu', u'clubName': u'\u5927\u5bb6\u5ead', u'finalBill': 0, u'insurancePremium': 0}]
             if dataList:
                 print(('fetch:', len(dataList)))
 
@@ -232,9 +232,9 @@ class CocoAutoTask(Task):
         return str(time.mktime(t.timetuple()))
 
     def settleRecord(self, record):
-        if record['dpqId'] != '2525717358':
-            print('user is not 2525717358')
-            return
+        # if record['dpqId'] != '2525717358':
+        #     print('user is not 2525717358')
+        #     return
         currentTime = str(time.time())
         gameEndTime = self.getCustTimestamp(record['endTime'])
 
@@ -317,15 +317,23 @@ class CocoAutoTask(Task):
               endTime,
               joinToken)
             cursor.close()
-            self.commit()
+            self.conn.commit()
         except Exception as e:
             traceback.print_exc()
             cursor.close()
-            self.rollback()
+            self.conn.rollback()
 
     def queryUserBoardList(self, start, end):
         params = {
-          "datetimes": '%s - %s' %(start, end)
+            'dpqName':'',
+            'dpqId':'',
+            'memberName':'',
+            'agentName':'',
+            'headAgentName':'',
+            'club':'',
+            'gameCreator': '',
+            'gameName': '',
+            "datetimes": '%s - %s' %(start, end)
         }
         print(('query param:', params))
         data = self.api.queryUserBoard(params)
