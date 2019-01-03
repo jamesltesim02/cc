@@ -326,7 +326,7 @@ class CocoAutoTask(Task):
             memberResult['settle_game_info'] = settleGameInfo
 
             # 更新钱包
-            cocomodel.applyUpdatePurse(cursor, memberResult, buyInAmountResult['totalAmount'] + record['bonus'])
+            cocomodel.applyUpdatePurse(cursor, memberResult, buyInAmountResult['totalAmount'] + record['finalBill'])
             cocomodel.updateBuyinLog(
               cursor,
               record['dpqId'],
