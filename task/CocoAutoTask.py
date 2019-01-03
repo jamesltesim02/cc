@@ -97,27 +97,30 @@ class CocoAutoTask(Task):
                 )).encode('utf-8')
             )
 
+            reqData = {
+                'clubId': buyinRecord['clubId'],
+                'dpqId': buyinRecord['showId'],
+                'buyinStack': buyinRecord['buyStack'],
+                'roomId': buyinRecord['gameRoomId'],
+                'player': buyinRecord['strNick'],
+                'clubName': buyinRecord['clubName'],
+                'agentName': '',
+                'roomName': buyinRecord['gameRoomName'],
+                'leagueName': buyinRecord['leagueName'],
+                'data[userUuid]': buyinRecord['uuid'],
+                'data[roomId]': buyinRecord['gameRoomId'],
+            }
+
             if int(purseInfo['cash']) >= int(buyinRecord['buyStack']):
+                print ('coco:autotask:apply:apply accept:', reqData)
                 try:
-                    applyResult = self.api.acceptBuyin({
-                        'clubId': buyinRecord['clubId'],
-                        'dpqId': buyinRecord['showId'],
-                        'buyinStack': buyinRecord['buyStack'],
-                        'roomId': buyinRecord['gameRoomId'],
-                        'player': buyinRecord['strNick'],
-                        'clubName': buyinRecord['clubName'],
-                        'agentName': '',
-                        'roomName': buyinRecord['gameRoomName'],
-                        'leagueName': buyinRecord['leagueName'],
-                        'data[userUuid]': buyinRecord['uuid'],
-                        'data[roomId]': buyinRecord['gameRoomId'],
-                    })
+                    applyResult = self.api.acceptBuyin(reqData)
                     if applyResult and not applyResult['err']:
                         # 审批成功
                         print ('coco:autotask:apply:apply success:', applyResult)
                         purseInfo['settle_game_info'] = settle_game_info
                         # 更新钱包
-                        cocomodel.updatePurse(
+                        cocomodel.applyUpdatePurse(
                             applyCursor,
                             purseInfo,
                             -int(buyinRecord['buyStack'])
@@ -130,6 +133,8 @@ class CocoAutoTask(Task):
                     print ('coco:autotask:apply:apply exception:', e)
                     traceback.print_exc()
             else:
+                print ('coco:autotask:apply:apply deny:', reqData)
+                applyResult = self.api.denyBuyin(reqData)
                 # 拒绝
                 applyAction = 'deny'
 
@@ -137,24 +142,25 @@ class CocoAutoTask(Task):
             cocomodel.addApplyLog(
                 applyCursor,
                 (
-                    purseInfo['frontend_user_id'],
-                    purseInfo['frontend_user_auth'],
-                    purseInfo['game_vid'],
-                    buyinRecord['clubName'],
-                    buyinRecord['buyStack'],
+                    str(purseInfo['frontend_user_id']),
+                    str(purseInfo['frontend_user_auth']),
+                    str(purseInfo['game_vid']),
+                    buyinRecord['clubName'].encode('utf-8'),
+                    str(buyinRecord['buyStack']),
                     str(time.time()),
                     str(time.time()),
                     'connor_coco_buyin',
-                    applyAction,
-                    buyinRecord['gameRoomName'],
-                    buyinRecord['gameRoomId'],
-                    applyClubRommName
+                    str(applyAction),
+                    buyinRecord['gameRoomName'].encode('utf-8'),
+                    str(applyClubRommName)
                 )
             )
 
             applyConn.commit()
         except Exception as e:
             applyConn.rollback()
+            print ('coco:autotask:apply:exception:', e)
+            traceback.print_exc()
         finally:
             applyConn.close()
 
