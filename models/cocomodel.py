@@ -37,7 +37,7 @@ def getCountApply(cursor, settle_game_info):
     cursor.execute(sql, (settle_game_info))
     return cursor.fetchone()
 
-def updatePurse(cursor, info, delta):
+def applyUpdatePurse(cursor, info, delta):
     timestamp = str(time.time())
     cash = int(info['cash'])+int(delta)
     sql = "update onethink_player_purse set cash=%s where id=%s"
