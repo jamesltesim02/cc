@@ -93,7 +93,7 @@
 
 ### 1.2. 依赖环境安装配置  
 #### 1.2.1. python模块  
-    pip install PyMySQL xlrd
+    pip install PyMySQL xlrd socketIO-client-nexus
 #### 1.2.2. nodejs  
 #### 1.2.4. pm2  
     sudo npm install -g pm2  
