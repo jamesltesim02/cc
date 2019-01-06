@@ -31,7 +31,7 @@ class Settlement(Task):
       "end_time_end": end,
       "query_index": index
     }
-    print(('query param:', params))
+    # print(('query param:', params))
     data = self.api.queryUserBoard(params)
 
     if len(data) >= 30:

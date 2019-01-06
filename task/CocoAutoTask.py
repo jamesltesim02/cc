@@ -53,7 +53,7 @@ class CocoAutoTask(Task):
             for buyinRecord in clubRecord['data']['result']:
                 # 判断是否为当前代理需要处理的数据
                 if not buyinRecord.has_key('status') or buyinRecord['status'] != 'active':
-                    print ('coco:autotask:apply:not need apply:', buyinRecord)
+                    # print ('coco:autotask:apply:not need apply:', buyinRecord)
                     continue
 
                 buyinRecord['clubId'] = clubRecord['clubId']
@@ -224,7 +224,7 @@ class CocoAutoTask(Task):
                 lastTimeStr,
                 nowStr
             )
-            print(data)
+            # print(data)
             if not data or data['err'] != False:
                 return
 
@@ -259,24 +259,24 @@ class CocoAutoTask(Task):
 
         # 结算判断标志
         settleGameInfo = base64.b64encode(
-          ('%s_%s_%s_%s_%s_%s_%s'  % (
-            record['dpqId'],
-            record['clubId'],
-            record['createUser'],
-            record['roomName'],
-            record['endTime'],
-            record['bonus'],
-            record['waterBill']
-          )).encode('utf-8')
+            ('%s_%s_%s_%s_%s_%s_%s'  % (
+                record['dpqId'],
+                record['clubId'],
+                record['createUser'],
+                record['roomName'],
+                record['endTime'],
+                record['bonus'],
+                record['waterBill']
+            )).encode('utf-8')
         )
 
         gameEndLog = {
-          'game_uid': record['dpqId'],
-          'game_id': record['roomName'],
-          'board_id': '',
-          'end_game_time': gameEndTime,
-          'apply_time': currentTime,
-          'settle_game_info': settleGameInfo,
+            'game_uid': record['dpqId'],
+            'game_id': record['roomName'],
+            'board_id': '',
+            'end_game_time': gameEndTime,
+            'apply_time': currentTime,
+            'settle_game_info': settleGameInfo,
         }
 
         cursor = self.conn.cursor()
@@ -303,11 +303,11 @@ class CocoAutoTask(Task):
             beginTime = self.getCustTimestamp(record['endTime'], minutes = -720)
             endTime = self.getCustTimestamp(record['endTime'], minutes = 120)
             buyInAmountResult = cocomodel.getTotoalBuyinAmount(
-              cursor,
-              record['dpqId'],
-              beginTime,
-              endTime,
-              joinToken
+                cursor,
+                record['dpqId'],
+                beginTime,
+                endTime,
+                joinToken
             )
 
             print(('total buy in:',buyInAmountResult))
@@ -328,11 +328,12 @@ class CocoAutoTask(Task):
             # 更新钱包
             cocomodel.applyUpdatePurse(cursor, memberResult, buyInAmountResult['totalAmount'] + record['finalBill'])
             cocomodel.updateBuyinLog(
-              cursor,
-              record['dpqId'],
-              beginTime,
-              endTime,
-              joinToken)
+                cursor,
+                record['dpqId'],
+                beginTime,
+                endTime,
+                joinToken
+            )
             cursor.close()
             self.conn.commit()
         except Exception as e:
@@ -352,7 +353,7 @@ class CocoAutoTask(Task):
             'gameName': '',
             "datetimes": '%s - %s' %(start, end)
         }
-        print(('query param:', params))
+        # print(('query param:', params))
         data = self.api.queryUserBoard(params)
 
         return data

@@ -203,7 +203,7 @@ class CocoProvider(ProviderInterface):
                     if not self.authCookie:
                         self.__login__()
         reqUrl = '%s/%s' % (self.conf['apiUrl'], url)
-        print ('coco:invoke:will invoke:', reqUrl, params)
+        # print ('coco:invoke:will invoke:', reqUrl, params)
         i = 0
         while i < 3:
             try:

@@ -29,7 +29,7 @@ class Settlement(Task):
     params = {
       "datetimes": '%s - %s' %(start, end)
     }
-    print(('query param:', params))
+    # print((':', params))
     data = self.api.queryUserBoard(params)
 
     return data
