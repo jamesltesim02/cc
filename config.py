@@ -10,7 +10,7 @@ config = {
 	    'className': 'CommonProvider',
 	    'serviceCode': 4,
 	    'apiUrl': 'https://yqdp-manager689125.gakuen.fun/api',
-		'localDataPath': '/Volumes/rey/work/PHP/Holdem/Uploads/settlement/'
+		'localDataPath': 'C:/workspace/cc/upload/dzpk'
 	},
 	'cms-provider': {
 		'name': 'cms-provider',
@@ -20,6 +20,7 @@ config = {
 	    'serviceCode': 6,
 		'cloubId': '21647880',
 	    'apiUrl': 'http://cms.pokermanager.club',
+		'localDataPath': 'C:/workspace/cc/upload/cms'
 	},
 	'coco-provider': {
 		'name': 'coco-provider',

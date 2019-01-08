@@ -19,7 +19,10 @@ class CmsBuyinCheckin(Task):
         # if not statusResult or statusResult['status'] == 0:
         #     return
 
+        print ('-------------------------------whill get data')
+
         rel =  self.api.getBuyin()
+        print(rel)
         list = rel['result']
         # list = [{u'totalGames': 8, u'gameRoomName': u'\u53d1\u53d1\u53d1', u'totalProfit': 1485, u'uuid': 774478, u'gameRoomId': 35047501, u'strNick': u'\u4e5f\u8bb8\u4f1a\u53d8', u'poolRate': 0, u'showId': u'1868828686', u'strSmallCover': u'http://upyun.pokermate.net/images/male_head.png', u'buyStack': 200, u'leagueId': 0, u'totalBuyin': 1100, u'totalHands': 10, u'leagueName': u'', u'clubId': 0}]
         for item in list:

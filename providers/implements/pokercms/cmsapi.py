@@ -93,7 +93,7 @@ def get_cookie(username, password):
 def invoke_api(api, username, password, params={}):
   tcinfo = get_cookie(username, password)
   
-  # print((api, username, password, params))
+  print((api, username, password, params))
 
   result = requests.post(
       base_url + api,
@@ -106,6 +106,8 @@ def invoke_api(api, username, password, params={}):
       },
       cookies = tcinfo['cookie']
     ).json()
+
+  print ('invoke result:', result)
 
   if result['iErrCode'] == 1000:
     login(username, password)

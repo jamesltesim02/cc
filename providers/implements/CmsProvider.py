@@ -35,6 +35,7 @@ class CmsProvider(ProviderInterface):
     Returns:
       {u'iErrCode': 0, u'result': []}
     """
+    print ('get buyin')
     return cmsapi.getBuyinList(self.apiUsername, self.apiPwd, self.clubId)
 
   def acceptBuyin(self, params):
