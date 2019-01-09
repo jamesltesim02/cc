@@ -144,3 +144,7 @@
     pm2 logs dzpk-auto  
 ### 3.7. 删除列表中的指定进程  
     pm2 delete dzpk-auto  
+
+# 4. CMS当前战局
+    入口文件: /CmsPortal.py
+    函数名: getCurrentGameList
